@@ -1,0 +1,323 @@
+$date
+	Mon Jun 22 22:14:33 2026
+$end
+$version
+	Icarus Verilog
+$end
+$timescale
+	1s
+$end
+$scope module testbench $end
+$var wire 1 ! zero $end
+$var wire 8 " shift [7:0] $end
+$var wire 1 # parity $end
+$var wire 1 $ overflow $end
+$var wire 4 % leds [3:0] $end
+$var wire 4 & count [3:0] $end
+$var wire 1 ' carry $end
+$var reg 1 ( clk $end
+$var reg 1 ) dir $end
+$var reg 1 * rst $end
+$scope module uut $end
+$var wire 1 ( clk $end
+$var wire 1 ) dir $end
+$var wire 4 + leds [3:0] $end
+$var wire 1 * rst $end
+$var wire 1 ! zero $end
+$var wire 1 # parity $end
+$var wire 1 $ overflow $end
+$var wire 1 ' carry $end
+$var reg 4 , count [3:0] $end
+$var reg 8 - shift [7:0] $end
+$upscope $end
+$upscope $end
+$enddefinitions $end
+$comment Show the parameter values. $end
+$dumpall
+$end
+#0
+$dumpvars
+bx -
+bx ,
+bx +
+1*
+1)
+0(
+x'
+bx &
+bx %
+x$
+x#
+bx "
+x!
+$end
+#5
+1#
+b1 "
+b1 -
+1!
+0'
+0$
+b0 %
+b0 +
+b0 &
+b0 ,
+1(
+#10
+0(
+#12
+0*
+#15
+b10 "
+b10 -
+0!
+b1 %
+b1 +
+b1 &
+b1 ,
+1(
+#20
+0(
+#25
+b100 "
+b100 -
+b10 %
+b10 +
+b10 &
+b10 ,
+1(
+#30
+0(
+#35
+b1000 "
+b1000 -
+b11 %
+b11 +
+b11 &
+b11 ,
+1(
+#40
+0(
+#45
+b10000 "
+b10000 -
+b100 %
+b100 +
+b100 &
+b100 ,
+1(
+#50
+0(
+#55
+b100000 "
+b100000 -
+b101 %
+b101 +
+b101 &
+b101 ,
+1(
+#60
+0(
+#65
+b1000000 "
+b1000000 -
+b110 %
+b110 +
+b110 &
+b110 ,
+1(
+#70
+0(
+#75
+b10000000 "
+b10000000 -
+1$
+b111 %
+b111 +
+b111 &
+b111 ,
+1(
+#80
+0(
+#85
+b1 "
+b1 -
+0$
+b1000 %
+b1000 +
+b1000 &
+b1000 ,
+1(
+#90
+0(
+#92
+0)
+#95
+b10 "
+b10 -
+1$
+b111 %
+b111 +
+b111 &
+b111 ,
+1(
+#100
+0(
+#105
+b100 "
+b100 -
+0$
+b110 %
+b110 +
+b110 &
+b110 ,
+1(
+#110
+0(
+#115
+b1000 "
+b1000 -
+b101 %
+b101 +
+b101 &
+b101 ,
+1(
+#120
+0(
+#125
+b10000 "
+b10000 -
+b100 %
+b100 +
+b100 &
+b100 ,
+1(
+#130
+0(
+#135
+b100000 "
+b100000 -
+b11 %
+b11 +
+b11 &
+b11 ,
+1(
+#140
+0(
+#145
+b1000000 "
+b1000000 -
+b10 %
+b10 +
+b10 &
+b10 ,
+1(
+#150
+0(
+#155
+b10000000 "
+b10000000 -
+b1 %
+b1 +
+b1 &
+b1 ,
+1(
+#160
+0(
+#165
+b1 "
+b1 -
+1!
+b0 %
+b0 +
+b0 &
+b0 ,
+1(
+#170
+0(
+#172
+1)
+#175
+b10 "
+b10 -
+0!
+b1 %
+b1 +
+b1 &
+b1 ,
+1(
+#180
+0(
+#185
+b100 "
+b100 -
+b10 %
+b10 +
+b10 &
+b10 ,
+1(
+#190
+0(
+#195
+b1000 "
+b1000 -
+b11 %
+b11 +
+b11 &
+b11 ,
+1(
+#200
+0(
+#205
+b10000 "
+b10000 -
+b100 %
+b100 +
+b100 &
+b100 ,
+1(
+#210
+0(
+#215
+b100000 "
+b100000 -
+b101 %
+b101 +
+b101 &
+b101 ,
+1(
+#220
+0(
+#225
+b1000000 "
+b1000000 -
+b110 %
+b110 +
+b110 &
+b110 ,
+1(
+#230
+0(
+#235
+b10000000 "
+b10000000 -
+1$
+b111 %
+b111 +
+b111 &
+b111 ,
+1(
+#240
+0(
+#245
+b1 "
+b1 -
+0$
+b1000 %
+b1000 +
+b1000 &
+b1000 ,
+1(
+#250
+0(
+#252

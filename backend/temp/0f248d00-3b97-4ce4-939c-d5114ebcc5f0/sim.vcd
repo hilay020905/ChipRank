@@ -1,0 +1,170 @@
+$date
+	Tue Jun 23 19:06:51 2026
+$end
+$version
+	Icarus Verilog
+$end
+$timescale
+	1ps
+$end
+$scope module testbench $end
+$var wire 1 ! empty $end
+$var wire 1 " full $end
+$var wire 8 # rd_data [7:0] $end
+$var reg 1 $ rd_clk $end
+$var reg 1 % rd_en $end
+$var reg 1 & rst_n $end
+$var reg 1 ' wr_clk $end
+$var reg 8 ( wr_data [7:0] $end
+$var reg 1 ) wr_en $end
+$scope module dut $end
+$var wire 1 ! empty $end
+$var wire 1 " full $end
+$var wire 1 $ rd_clk $end
+$var wire 1 % rd_en $end
+$var wire 1 & rst_n $end
+$var wire 1 ' wr_clk $end
+$var wire 8 * wr_data [7:0] $end
+$var wire 1 ) wr_en $end
+$var parameter 32 + DEPTH $end
+$var parameter 32 , PTR $end
+$var reg 8 - rd_data [7:0] $end
+$upscope $end
+$upscope $end
+$enddefinitions $end
+$comment Show the parameter values. $end
+$dumpall
+b100 ,
+b10000 +
+$end
+#0
+$dumpvars
+bx -
+b0 *
+0)
+b0 (
+0'
+0&
+0%
+0$
+bx #
+z"
+z!
+$end
+#5000
+1'
+#7000
+1$
+#10000
+0'
+#14000
+0$
+#15000
+1'
+#20000
+0'
+1)
+1&
+#21000
+1$
+#25000
+b10101010 (
+b10101010 *
+1'
+#28000
+0$
+#30000
+0'
+#35000
+b10111011 (
+b10111011 *
+1'
+1$
+#40000
+0'
+#42000
+0$
+#45000
+b11001100 (
+b11001100 *
+1'
+#49000
+1$
+#50000
+0'
+#55000
+0)
+b11011101 (
+b11011101 *
+1'
+#56000
+0$
+#60000
+0'
+#63000
+1$
+#65000
+1'
+#70000
+0'
+0$
+#75000
+1'
+#77000
+1$
+#80000
+0'
+#84000
+0$
+#85000
+1'
+1%
+#90000
+0'
+#91000
+1$
+#95000
+1'
+#98000
+0$
+#100000
+0'
+#105000
+1'
+1$
+#107000
+0%
+#110000
+0'
+#112000
+0$
+#115000
+1'
+#119000
+1$
+#120000
+0'
+#125000
+1'
+#126000
+0$
+#130000
+0'
+#133000
+1$
+#135000
+1'
+#140000
+0'
+0$
+#145000
+1'
+#147000
+1$
+#150000
+0'
+#154000
+0$
+#155000
+1'
+#157000
