@@ -3125,6 +3125,561 @@ function showToast(msg, cls) {
 }
 function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
+// ── 1. Hook into the Monaco loader so we register
+//       languages the moment Monaco is ready.
+//       We wrap the existing loadMonaco callback.
+const _origLoadMonaco = loadMonaco;
+window.loadMonaco = function(cb) {
+  _origLoadMonaco(() => {
+    _registerVerilogLanguages();
+    cb();
+  });
+};
+
+function _registerVerilogLanguages() {
+  // Guard: only register once
+  if (window._vlogLangsRegistered) return;
+  window._vlogLangsRegistered = true;
+
+  // ── 2. Register language IDs if Monaco doesn't know them
+  ['verilog', 'systemverilog'].forEach(langId => {
+    const known = monaco.languages.getLanguages().some(l => l.id === langId);
+    if (!known) {
+      monaco.languages.register({ id: langId, extensions: [langId === 'verilog' ? '.v' : '.sv'] });
+    }
+  });
+
+  // ── 3. Tokenizer (gives syntax highlighting + token-aware completions)
+  const tokenRules = {
+    defaultToken: '',
+    keywords: [
+      'module','endmodule','input','output','inout','reg','wire','logic',
+      'integer','real','parameter','localparam','genvar','event',
+      'always','always_ff','always_comb','always_latch',
+      'initial','final','fork','join','join_any','join_none',
+      'begin','end','if','else','case','casez','casex','endcase',
+      'for','while','repeat','forever','disable','wait',
+      'assign','deassign','force','release',
+      'posedge','negedge','edge',
+      'task','endtask','function','endfunction','automatic','return',
+      'generate','endgenerate',
+      'include','define','ifdef','ifndef','endif','else','timescale',
+      'specify','endspecify','specparam',
+      'signed','unsigned',
+      // SV extras
+      'interface','endinterface','modport','clocking','endclocking',
+      'program','endprogram','checker','endchecker',
+      'class','endclass','extends','implements','new','this','super',
+      'typedef','struct','union','enum','packed',
+      'bit','byte','shortint','int','longint','shortreal',
+      'string','chandle','void',
+      'rand','randc','constraint','randomize','with','solve','before',
+      'covergroup','endgroup','coverpoint','cross','bins','binsof',
+      'property','endproperty','assert','assume','cover','expect',
+      'sequence','endsequence','throughout','within','intersect',
+      'first_match','unique','priority',
+      'import','export','package','endpackage',
+      'virtual','pure','static','protected','local',
+      'foreach','do','break','continue',
+      'mailbox','semaphore','process',
+      'bind','extends','matches','tagged',
+    ],
+    typeKeywords: ['wire','reg','logic','bit','int','integer','real','byte','string','void','shortint','longint','shortreal'],
+    operators: ['=','<','>', '<=', '>=', '==', '!=', '===', '!==', '&&', '||', '!', '&', '|', '^', '~', '+', '-', '*', '/', '%', '<<', '>>', '<<<', '>>>', '?', ':', '#', '@', '->', '|->', '|=>'],
+    tokenizer: {
+      root: [
+        [/[a-zA-Z_]\w*/, {
+          cases: {
+            '@keywords': 'keyword',
+            '@typeKeywords': 'type',
+            '@default': 'identifier'
+          }
+        }],
+        [/\/\/.*$/, 'comment'],
+        [/\/\*/, 'comment', '@comment'],
+        [/"([^"\\]|\\.)*"/, 'string'],
+        [/\d+'[bBoOdDhH][0-9a-fA-FxXzZ_]+/, 'number'],
+        [/\d+(\.\d+)?([eE][+-]?\d+)?/, 'number'],
+        [/`\w+/, 'keyword'],
+        [/[{}()\[\]]/, 'delimiter'],
+        [/[;,.]/, 'delimiter'],
+      ],
+      comment: [
+        [/[^/*]+/, 'comment'],
+        [/\*\//, 'comment', '@pop'],
+        [/[/*]/, 'comment'],
+      ],
+    }
+  };
+
+  monaco.languages.setMonarchTokensProvider('verilog', tokenRules);
+  monaco.languages.setMonarchTokensProvider('systemverilog', tokenRules);
+
+  // ── 4. Build completion items
+  const CK = monaco.languages.CompletionItemKind;
+
+  // Keyword completions
+  const VERILOG_KEYWORDS = [
+    'module','endmodule','input','output','inout','reg','wire','parameter',
+    'localparam','genvar','always','initial','begin','end','if','else',
+    'case','casez','casex','endcase','for','while','repeat','forever',
+    'assign','posedge','negedge','task','endtask','function','endfunction',
+    'generate','endgenerate','integer','real','signed','unsigned',
+    'disable','wait','fork','join','specify','endspecify',
+  ];
+
+  const SV_KEYWORDS = [
+    ...VERILOG_KEYWORDS,
+    'logic','bit','byte','shortint','int','longint','shortreal','string','void',
+    'always_ff','always_comb','always_latch','interface','endinterface','modport',
+    'clocking','endclocking','program','endprogram','class','endclass',
+    'extends','implements','new','this','super','typedef','struct','union',
+    'enum','packed','rand','randc','constraint','randomize','with',
+    'covergroup','endgroup','coverpoint','cross','bins',
+    'property','endproperty','assert','assume','cover','expect',
+    'sequence','endsequence','throughout','within',
+    'foreach','do','break','continue','return','automatic','virtual','pure',
+    'static','protected','local','import','export','package','endpackage',
+    'mailbox','semaphore','process','unique','priority','first_match',
+    'bind','solve','before','tagged','matches',
+  ];
+
+  // Snippets: [trigger, label, insertText, doc]
+  const SNIPPETS = [
+    // ── Structural
+    ['module', 'module...endmodule',
+`module \${1:module_name} (
+\tinput  \${2:wire} \${3:clk},
+\toutput \${4:wire} \${5:out}
+);
+
+\t// TODO
+
+endmodule`, 'Verilog module skeleton'],
+
+    ['always_ff', 'always_ff (clocked block)',
+`always_ff @(posedge \${1:clk} or negedge \${2:rst_n}) begin
+\tif (!\${2:rst_n}) begin
+\t\t\${3:q} <= '0;
+\tend else begin
+\t\t\${3:q} <= \${4:d};
+\tend
+end`, 'Sequential always_ff with async reset'],
+
+    ['always_comb', 'always_comb (combinational)',
+`always_comb begin
+\t\${1:// logic}
+end`, 'Combinational always_comb block'],
+
+    ['always', 'always @(posedge clk)',
+`always @(posedge \${1:clk}) begin
+\t\${2:// logic}
+end`, 'Classic always block'],
+
+    ['initial', 'initial begin...end',
+`initial begin
+\t\${1:// simulation init}
+end`, 'Initial block'],
+
+    ['task', 'task...endtask',
+`task automatic \${1:task_name}(
+\tinput \${2:logic} \${3:arg}
+);
+\t\${4:// body}
+endtask`, 'Task definition'],
+
+    ['function', 'function...endfunction',
+`function automatic \${1:logic} \${2:func_name}(
+\tinput \${3:logic} \${4:arg}
+);
+\t\${5:// body}
+\treturn \${6:'0};
+endfunction`, 'Function definition'],
+
+    ['case', 'case...endcase',
+`case (\${1:sel})
+\t\${2:2'b00}: \${3:result} = \${4:'0};
+\t\${5:2'b01}: \${3:result} = \${6:'1};
+\tdefault:    \${3:result} = 'x;
+endcase`, 'case statement'],
+
+    ['casez', 'casez...endcase',
+`casez (\${1:in})
+\t\${2:4'b1???}: \${3:out} = \${4:3'd0};
+\t\${5:4'b01??}: \${3:out} = \${6:3'd1};
+\tdefault:      \${3:out} = 'x;
+endcase`, 'casez (with don\'t-care)'],
+
+    ['for', 'for loop',
+`for (\${1:int} \${2:i} = 0; \${2:i} < \${3:N}; \${2:i}++) begin
+\t\${4:// body}
+end`, 'for loop'],
+
+    ['foreach', 'foreach loop (SV)',
+`foreach (\${1:arr}[\${2:i}]) begin
+\t\${3:// body}
+end`, 'foreach loop (SystemVerilog)'],
+
+    ['generate', 'generate...endgenerate',
+`genvar \${1:i};
+generate
+\tfor (\${1:i} = 0; \${1:i} < \${2:N}; \${1:i}++) begin : \${3:gen_block}
+\t\t\${4:// instantiation}
+\tend
+endgenerate`, 'generate for loop'],
+
+    ['parameter', 'parameter declaration',
+`parameter \${1:int} \${2:WIDTH} = \${3:8};`, 'parameter'],
+
+    ['localparam', 'localparam declaration',
+`localparam \${1:int} \${2:DEPTH} = \${3:16};`, 'localparam'],
+
+    ['typedef', 'typedef enum (SV)',
+`typedef enum logic [\${1:1}:0] {
+\t\${2:S_IDLE} = \${3:2'b00},
+\t\${4:S_RUN}  = \${5:2'b01}
+} \${6:state_t};`, 'typedef enum for FSM'],
+
+    ['struct', 'typedef struct packed (SV)',
+`typedef struct packed {
+\tlogic [\${1:7}:0] \${2:data};
+\tlogic            \${3:valid};
+} \${4:my_struct_t};`, 'packed struct typedef'],
+
+    ['interface', 'interface...endinterface (SV)',
+`interface \${1:my_if} (
+\tinput logic \${2:clk},
+\tinput logic \${3:rst_n}
+);
+\tlogic \${4:valid};
+\tlogic \${5:ready};
+
+\tmodport master (output \${4:valid}, input \${5:ready});
+\tmodport slave  (input  \${4:valid}, output \${5:ready});
+endinterface`, 'Interface with modports'],
+
+    ['class', 'class...endclass (SV)',
+`class \${1:MyClass} extends \${2:uvm_object};
+\t\`uvm_object_utils(\${1:MyClass})
+
+\trand \${3:logic [7:0]} \${4:data};
+
+\tfunction new(string name = "\${1:MyClass}");
+\t\tsuper.new(name);
+\tendfunction
+
+endclass`, 'UVM-style class skeleton'],
+
+    ['property', 'property...endproperty (SVA)',
+`property \${1:p_name};
+\t@(posedge \${2:clk}) disable iff (!\${3:rst_n})
+\t\${4:req} |->\${5: ##[1:8]} \${6:ack};
+endproperty
+\${7:a_name}: assert property (\${1:p_name});`, 'SVA concurrent property'],
+
+    ['covergroup', 'covergroup (SV)',
+`covergroup \${1:cg_name} @(posedge \${2:clk});
+\tcp_\${3:signal}: coverpoint \${3:signal} {
+\t\tbins lo = {\${4:0}};
+\t\tbins hi = {\${5:1}};
+\t}
+endgroup
+\${1:cg_name} \${6:cg_inst} = new();`, 'Functional covergroup'],
+
+    ['dumpvars', '$dumpfile + $dumpvars',
+`\$dumpfile("\${1:sim}.vcd");
+\$dumpvars(0, \${2:testbench});`, 'VCD dump setup'],
+
+    ['timescale', '`timescale',
+`\`timescale \${1:1ns}/\${2:1ps}`, 'Timescale directive'],
+
+    ['display', '$display',
+`\$display("\${1:%s}", \${2:signal});`, '$display system task'],
+
+    ['finish', '$finish',
+`\$finish;`, '$finish'],
+
+    ['posedge', '@(posedge clk)',
+`@(posedge \${1:clk});`, 'Posedge event'],
+
+    ['negedge', '@(negedge clk)',
+`@(negedge \${1:clk});`, 'Negedge event'],
+
+    ['dff', 'D flip-flop (always_ff)',
+`always_ff @(posedge \${1:clk} or negedge \${2:rst_n}) begin
+\tif (!\${2:rst_n})
+\t\t\${3:q} <= '0;
+\telse
+\t\t\${3:q} <= \${4:d};
+end`, 'D flip-flop with async reset'],
+
+    ['fifo', 'Sync FIFO skeleton',
+`module \${1:sync_fifo} #(
+\tparameter int DEPTH = \${2:16},
+\tparameter int WIDTH = \${3:8}
+) (
+\tinput  logic             clk, rst_n,
+\tinput  logic             push, pop,
+\tinput  logic [WIDTH-1:0] din,
+\toutput logic [WIDTH-1:0] dout,
+\toutput logic             full, empty
+);
+\tlocalparam int PTR_W = \$clog2(DEPTH);
+\tlogic [WIDTH-1:0] mem [DEPTH];
+\tlogic [PTR_W:0]   wr_ptr, rd_ptr;
+
+\tassign full  = (wr_ptr - rd_ptr) == DEPTH;
+\tassign empty = (wr_ptr == rd_ptr);
+\tassign dout  = mem[rd_ptr[PTR_W-1:0]];
+
+\talways_ff @(posedge clk or negedge rst_n) begin
+\t\tif (!rst_n) begin wr_ptr <= '0; rd_ptr <= '0; end
+\t\telse begin
+\t\t\tif (push && !full)  begin mem[wr_ptr[PTR_W-1:0]] <= din; wr_ptr <= wr_ptr + 1; end
+\t\t\tif (pop  && !empty) rd_ptr <= rd_ptr + 1;
+\t\tend
+\tend
+endmodule`, 'Synchronous FIFO'],
+
+    ['fsm', 'FSM (3-block style)',
+`typedef enum logic [\${1:1}:0] {
+\tS_IDLE = \${2:2'b00},
+\tS_RUN  = \${3:2'b01}
+} \${4:state_t};
+
+\${4:state_t} state, next;
+
+// State register
+always_ff @(posedge \${5:clk} or negedge \${6:rst_n})
+\tif (!\${6:rst_n}) state <= S_IDLE;
+\telse             state <= next;
+
+// Next-state logic
+always_comb begin
+\tnext = state;
+\tunique case (state)
+\t\tS_IDLE: if (\${7:start}) next = S_RUN;
+\t\tS_RUN:  if (\${8:done})  next = S_IDLE;
+\tendcase
+end
+
+// Output logic
+always_comb begin
+\t\${9:out} = '0;
+\tcase (state)
+\t\tS_RUN: \${9:out} = 1'b1;
+\t\tdefault: ;
+\tendcase
+end`, 'Three-block FSM'],
+
+    ['gray', 'bin_to_gray function',
+`function automatic logic [\${1:WIDTH}-1:0] bin_to_gray(
+\tinput logic [\${1:WIDTH}-1:0] b
+);
+\treturn b ^ (b >> 1);
+endfunction`, 'Binary to Gray code'],
+
+    ['sync2ff', '2-FF synchronizer',
+`module sync2ff #(parameter int W = 1) (
+\tinput  logic         dst_clk, dst_rst_n,
+\tinput  logic [W-1:0] async_in,
+\toutput logic [W-1:0] sync_out
+);
+\tlogic [W-1:0] stage1;
+\t(* ASYNC_REG = "TRUE" *)
+\talways_ff @(posedge dst_clk or negedge dst_rst_n) begin
+\t\tif (!dst_rst_n) begin stage1 <= '0; sync_out <= '0; end
+\t\telse begin stage1 <= async_in; sync_out <= stage1; end
+\tend
+endmodule`, '2-FF CDC synchronizer'],
+
+    ['testbench', 'testbench skeleton',
+`\`timescale 1ns/1ps
+module testbench;
+
+\treg  \${1:clk}, \${2:rst_n};
+\twire \${3:out};
+
+\t\${4:dut} dut (
+\t\t.clk   (\${1:clk}),
+\t\t.rst_n (\${2:rst_n}),
+\t\t.\${5:out}(\${3:out})
+\t);
+
+\tinitial \${1:clk} = 0;
+\talways #\${6:5} \${1:clk} = ~\${1:clk};
+
+\tinitial begin
+\t\t\$dumpfile("sim.vcd");
+\t\t\$dumpvars(0, testbench);
+
+\t\t\${2:rst_n} = 0;
+\t\t#\${7:20};
+\t\t\${2:rst_n} = 1;
+
+\t\t// TODO: add stimulus
+
+\t\t#\${8:100};
+\t\t\$finish;
+\tend
+
+endmodule`, 'Full testbench skeleton'],
+  ];
+
+  // System functions / tasks (shown as functions)
+  const SYS_TASKS = [
+    ['$display','$display(format, args)','Display to console (Active region)'],
+    ['$strobe', '$strobe(format, args)', 'Display after delta settle (Postponed)'],
+    ['$monitor','$monitor(format, args)','Monitor signal changes'],
+    ['$finish', '$finish','End simulation'],
+    ['$stop',   '$stop',  'Pause simulation'],
+    ['$time',   '$time',  'Current simulation time (64-bit)'],
+    ['$realtime','$realtime','Current simulation time (real)'],
+    ['$random', '$random','32-bit pseudo-random integer'],
+    ['$urandom','$urandom','Unsigned 32-bit random (SV)'],
+    ['$dumpfile','$dumpfile("file.vcd")','Open VCD dump file'],
+    ['$dumpvars','$dumpvars(depth, scope)','Enable VCD variable dump'],
+    ['$readmemh','$readmemh("file.hex", mem)','Load hex file into memory'],
+    ['$readmemb','$readmemb("file.bin", mem)','Load binary file into memory'],
+    ['$clog2',  '$clog2(N)','Ceiling log2 (synthesisable)'],
+    ['$signed', '$signed(val)','Cast to signed'],
+    ['$unsigned','$unsigned(val)','Cast to unsigned'],
+    ['$bits',   '$bits(expr)','Bit width of expression (SV)'],
+    ['$size',   '$size(arr)','Size of array (SV)'],
+    ['$high',   '$high(arr)','Highest index (SV)'],
+    ['$low',    '$low(arr)', 'Lowest index (SV)'],
+    ['$left',   '$left(arr)','Left-most index (SV)'],
+    ['$right',  '$right(arr)','Right-most index (SV)'],
+    ['$onehot', '$onehot(val)','True if exactly one bit set (SV)'],
+    ['$onehot0','$onehot0(val)','True if at most one bit set (SV)'],
+    ['$isunknown','$isunknown(val)','True if any bit is X or Z (SV)'],
+    ['$cast',   '$cast(dest, src)','Safe runtime downcast (SV)'],
+    ['$rose',   '$rose(sig)','True on 0→1 transition (SVA)'],
+    ['$fell',   '$fell(sig)','True on 1→0 transition (SVA)'],
+    ['$stable', '$stable(sig)','True if signal did not change (SVA)'],
+    ['$past',   '$past(sig,N)','Value of signal N cycles ago (SVA)'],
+    ['$fatal',  '$fatal(0, msg)','Fatal error, abort simulation'],
+    ['$error',  '$error(msg)','Non-fatal error message'],
+    ['$warning','$warning(msg)','Warning message'],
+    ['$info',   '$info(msg)',  'Informational message'],
+  ];
+
+  // Common port/signal names (identifier completions)
+  const COMMON_IDENTIFIERS = [
+    'clk','rst_n','rst','reset','enable','valid','ready','data','addr',
+    'wr_en','rd_en','din','dout','q','d','sel','out','in',
+    'full','empty','count','load','done','ack','req',
+    'wr_clk','rd_clk','wr_data','rd_data','wr_ptr','rd_ptr',
+    'posedge','negedge','1\'b0','1\'b1','\'0','\'1','\'x','\'z',
+  ];
+
+  // ── 5. Build the completion provider function
+  function makeProvider(lang) {
+    return {
+      provideCompletionItems(model, position) {
+        const word = model.getWordUntilPosition(position);
+        const range = {
+          startLineNumber: position.lineNumber,
+          endLineNumber:   position.lineNumber,
+          startColumn: word.startColumn,
+          endColumn:   word.endColumn,
+        };
+
+        const isSV = lang === 'systemverilog';
+        const keywords = isSV ? SV_KEYWORDS : VERILOG_KEYWORDS;
+        const suggestions = [];
+
+        // Keywords
+        keywords.forEach(kw => {
+          suggestions.push({
+            label: kw,
+            kind: CK.Keyword,
+            insertText: kw,
+            range,
+            detail: 'keyword',
+          });
+        });
+
+        // Snippets
+        SNIPPETS.forEach(([trigger, label, body, doc]) => {
+          // For Verilog (non-SV) skip SV-only snippets
+          const svOnly = ['always_ff','always_comb','always_latch','interface',
+                          'class','property','covergroup','typedef','struct',
+                          'foreach','fsm','sync2ff'].includes(trigger);
+          if (svOnly && !isSV) return;
+
+          suggestions.push({
+            label: trigger,
+            kind: CK.Snippet,
+            detail: label,
+            documentation: doc,
+            insertText: body,
+            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+            range,
+            sortText: '0' + trigger, // sort snippets first
+          });
+        });
+
+        // System tasks
+        SYS_TASKS.forEach(([name, signature, doc]) => {
+          suggestions.push({
+            label: name,
+            kind: CK.Function,
+            detail: signature,
+            documentation: doc,
+            insertText: name,
+            range,
+          });
+        });
+
+        // Common identifiers
+        COMMON_IDENTIFIERS.forEach(id => {
+          suggestions.push({
+            label: id,
+            kind: CK.Variable,
+            insertText: id,
+            range,
+            sortText: 'z' + id, // sort last
+          });
+        });
+
+        return { suggestions };
+      }
+    };
+  }
+
+  // ── 6. Register providers for both languages
+  monaco.languages.registerCompletionItemProvider('verilog',       makeProvider('verilog'));
+  monaco.languages.registerCompletionItemProvider('systemverilog', makeProvider('systemverilog'));
+
+  // ── 7. Language config: brackets, comments, auto-close
+  const langConfig = {
+    comments: { lineComment: '//', blockComment: ['/*', '*/'] },
+    brackets: [['(',')'],['{','}'],['[',']']],
+    autoClosingPairs: [
+      { open:'(', close:')' },
+      { open:'{', close:'}' },
+      { open:'[', close:']' },
+      { open:'"', close:'"' },
+    ],
+    surroundingPairs: [
+      { open:'(', close:')' },
+      { open:'{', close:'}' },
+      { open:'[', close:']' },
+      { open:'"', close:'"' },
+    ],
+    indentationRules: {
+      increaseIndentPattern: /^\s*(module|begin|fork|generate|task|function|interface|class|program|property|sequence|covergroup|case|casez|casex|if|else|for|while|repeat|forever)\b.*$/,
+      decreaseIndentPattern: /^\s*(end|endmodule|join|join_any|join_none|endgenerate|endtask|endfunction|endinterface|endclass|endprogram|endproperty|endsequence|endgroup|endcase)\b/,
+    },
+  };
+
+  monaco.languages.setLanguageConfiguration('verilog',       langConfig);
+  monaco.languages.setLanguageConfiguration('systemverilog', langConfig);
+}
+// ── END OF AUTOCOMPLETE PATCH ──────────────────
+
+
 // ════════════════════════════════════════════════
 // INIT
 // ════════════════════════════════════════════════
