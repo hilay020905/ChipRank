@@ -252,8 +252,8 @@ img,svg{display:block;max-width:100%;}
 .ghc-step-body p{font-size:12px;color:var(--muted);line-height:1.5;margin:0;}
 
 /* COURSE READER */
-.course-reader{display:flex;min-height:calc(100vh - 57px);align-items:start;width:100%;}
-.cr-nav{position:sticky;top:calc(57px + 24px);width:210px;flex-shrink:0;margin:24px 0 24px 40px;background:#0c0c0c;border:1px solid var(--border);border-radius:16px;padding:18px 0;box-shadow:0 8px 32px rgba(0,0,0,.6);max-height:calc(100vh - 120px);overflow-y:auto;align-self:flex-start;}
+.course-reader{display:flex;min-height:calc(100vh - 57px);align-items:start;width:100%;max-width:1100px;margin:0 auto;padding:0 24px;gap:0;}
+.cr-nav{position:sticky;top:calc(57px + 24px);width:220px;flex-shrink:0;margin:24px 0;background:#0c0c0c;border:1px solid var(--border);border-radius:16px;padding:18px 0;box-shadow:0 8px 32px rgba(0,0,0,.6);max-height:calc(100vh - 120px);overflow-y:auto;align-self:flex-start;}
 .cr-nav__back{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:12px;color:var(--muted);cursor:pointer;padding:0 16px 14px;border-bottom:1px solid var(--border);margin-bottom:14px;transition:color .2s;}
 .cr-nav__back:hover{color:var(--cyan);}
 .cr-nav__course-title{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:0 16px;margin-bottom:10px;}
@@ -261,7 +261,7 @@ img,svg{display:block;max-width:100%;}
 .cr-nav__item:hover{background:rgba(255,255,255,.03);color:#F8FAFC;}
 .cr-nav__item.active{background:rgba(109,99,242,.08);border-left-color:var(--pb);color:#F8FAFC;border-radius:0 8px 8px 0;}
 .cr-nav__item-num{font-family:var(--mono);font-size:10px;color:var(--pb);background:rgba(109,99,242,.15);padding:2px 5px;border-radius:4px;flex-shrink:0;margin-top:2px;}
-.cr-content{flex:1;max-width:760px;padding:40px 48px 80px;margin:0 auto;}
+.cr-content{flex:1;max-width:720px;padding:40px 32px 80px 36px;min-width:0;}
 .cr-breadcrumb{font-family:var(--mono);font-size:12px;color:var(--muted);margin-bottom:24px;display:flex;align-items:center;gap:6px;}
 .cr-breadcrumb span{color:var(--cyan);}
 .cr-section{display:none;}
@@ -278,6 +278,18 @@ img,svg{display:block;max-width:100%;}
 .cr-box p{margin-bottom:0;color:var(--muted);font-size:13.5px;line-height:1.75;}
 .cr-box code{font-family:var(--mono);font-size:12.5px;background:rgba(109,99,242,.12);color:var(--cyan);padding:1px 5px;border-radius:4px;}
 .cr-nav-btns{display:flex;gap:12px;margin-top:36px;padding-top:22px;border-top:1px solid var(--border);}
+.cr-code-wrap{position:relative;margin:18px 0;}
+.cr-code-wrap pre{background:#020202;border:1px solid rgba(109,99,242,.25);border-radius:10px;padding:18px 20px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.75;color:#CBD5E1;margin:0;}
+.cr-code-wrap code{font-family:var(--mono);color:#CBD5E1;background:none;padding:0;}
+.cr-copy-btn{position:absolute;top:8px;right:8px;background:rgba(109,99,242,.15);border:1px solid rgba(109,99,242,.3);color:#A78BFA;font-family:var(--mono);font-size:10px;padding:3px 8px;border-radius:5px;cursor:pointer;transition:all .15s;letter-spacing:.04em;}
+.cr-copy-btn:hover{background:rgba(109,99,242,.3);color:#fff;border-color:rgba(109,99,242,.6);}
+.cr-copy-btn.copied{background:rgba(20,184,166,.15);border-color:rgba(20,184,166,.4);color:#14B8A6;}
+.cr-box.tip{border-color:rgba(6,182,212,.3);background:rgba(6,182,212,.04);}
+.cr-box.tip .cr-box__label{color:var(--cyan);}
+.cr-box.warn{border-color:rgba(239,68,68,.3);background:rgba(239,68,68,.04);}
+.cr-box.warn .cr-box__label{color:var(--error);}
+.cr-box.fact{border-color:rgba(245,158,11,.3);background:rgba(245,158,11,.04);}
+.cr-box.fact .cr-box__label{color:var(--warn);}
 
 @media(max-width:960px){
   .hero__inner{grid-template-columns:1fr;}
@@ -457,7 +469,7 @@ img,svg{display:block;max-width:100%;}
         <div class="course-badge" style="background:rgba(109,99,242,.12);color:#A78BFA"><svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor"><circle cx="6" cy="6" r="5"/></svg> Course 02</div>
         <h2>SystemVerilog</h2>
         <p>The industry language for RTL design and verification. Interfaces, packages, classes, clocking blocks, assertions, and synthesizable RTL.</p>
-        <div class="course-meta"><span>58 lessons</span><span>120 problems</span><span>~45 hrs</span></div>
+        <div class="course-meta"><span>24 lessons</span><span>85 problems</span><span>~35 hrs</span></div>
         <div class="course-topics"><span class="course-topic">interfaces</span><span class="course-topic">packages</span><span class="course-topic">OOP classes</span><span class="course-topic">assertions (SVA)</span><span class="course-topic">CDC patterns</span></div>
         <div class="course-progress-bar"><div class="course-progress-fill" style="width:0%"></div></div>
         <div class="course-footer"><span class="course-level level-intermediate">Intermediate</span><button class="course-enroll-btn" onclick="event.stopPropagation();openCourse('systemverilog')">START COURSE →</button></div>
@@ -639,10 +651,9 @@ img,svg{display:block;max-width:100%;}
             <div style="flex:1;position:relative;overflow:hidden;"><div id="lab-monaco-tb" style="width:100%;height:100%;"></div></div>
           </div>
         </div>
-        <!-- H resize -->
-        <div id="lab-hresize" style="height:4px;background:transparent;cursor:row-resize;flex-shrink:0;" onmouseover="this.style.background='rgba(6,182,212,.45)'" onmouseout="if(!this._drag)this.style.background='transparent'"></div>
         <!-- Bottom panel floating card -->
         <div id="lab-bottom" style="height:240px;min-height:90px;max-height:55vh;display:flex;flex-direction:column;background:#0c0c0c;border:1px solid var(--border);border-radius:14px;flex-shrink:0;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.5);">
+          <div id="lab-hresize" style="height:4px;background:transparent;cursor:row-resize;flex-shrink:0;" onmouseover="this.style.background='rgba(6,182,212,.45)'" onmouseout="if(!this._drag)this.style.background='transparent'"></div>
           <div style="display:flex;border-bottom:1px solid var(--border);background:#0a0a0a;flex-shrink:0;border-radius:14px 14px 0 0;">
             <div id="lab-tab-console" onclick="labSwitchTab('console',this)" style="padding:8px 16px;font-size:12px;font-weight:600;cursor:pointer;color:#fff;border-bottom:2px solid var(--cyan);transition:all .18s;">Console</div>
             <div id="lab-tab-wave" onclick="labSwitchTab('wave',this)" style="padding:8px 16px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .18s;">Waveform</div>
@@ -1322,13 +1333,14 @@ function openProblem(id) {
     if (!labMonacoDUT) {
       labMonacoDUT = monaco.editor.create(document.getElementById('lab-monaco-dut'), { ...MONO_OPTS, language: lang, value: p.designCode });
       labMonacoTB  = monaco.editor.create(document.getElementById('lab-monaco-tb'),  { ...MONO_OPTS, language: lang, value: p.tbCode });
-      setupResizer('lab-vpane-resize', 'lab-editors-row', labMonacoDUT, labMonacoTB, false);
+      setupResizer('lab-vpane-resize', null, labMonacoDUT, labMonacoTB, true);
       setupVResizer('lab-hresize', 'lab-bottom', labMonacoDUT, labMonacoTB);
     } else {
       monaco.editor.setModelLanguage(labMonacoDUT.getModel(), lang);
       monaco.editor.setModelLanguage(labMonacoTB.getModel(), lang);
       labMonacoDUT.setValue(p.designCode);
       labMonacoTB.setValue(p.tbCode);
+      requestAnimationFrame(() => { labMonacoDUT.layout(); labMonacoTB.layout(); });
     }
     labSetStatus('idle', 'Ready — click ▶ Simulate to run with Icarus Verilog');
     checkBackend('lab');
@@ -1686,7 +1698,8 @@ function setupResizer(handleId, rowId, m1, m2, useSibling) {
     const el = useSibling ? handle.previousElementSibling : document.getElementById(rowId);
     sw = el ? el.offsetWidth : 400;
     handle._drag = true;
-    document.body.style.cssText = 'cursor:col-resize;user-select:none;';
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
   });
   document.addEventListener('mousemove', e => {
     if (!drag) return;
@@ -1694,12 +1707,15 @@ function setupResizer(handleId, rowId, m1, m2, useSibling) {
     if (!el) return;
     const tot = handle.parentElement.offsetWidth - 4;
     const w = Math.max(160, Math.min(tot - 160, sw + e.clientX - sx));
-    el.style.cssText = `flex:none;width:${w}px`;
+    el.style.flex = 'none';
+    el.style.width = w + 'px';
     m1 && m1.layout(); m2 && m2.layout();
   });
   document.addEventListener('mouseup', () => {
     if (!drag) return; drag = false; handle._drag = false;
-    handle.style.background = 'transparent'; document.body.style.cssText = '';
+    handle.style.background = 'transparent';
+    document.body.style.cursor = '';
+    document.body.style.userSelect = '';
   });
 }
 function setupVResizer(handleId, bottomId, m1, m2) {
@@ -1708,19 +1724,30 @@ function setupVResizer(handleId, bottomId, m1, m2) {
   if (!handle || !bottom) return;
   let drag = false, sy = 0, sh = 0;
   handle.addEventListener('mousedown', e => {
-    drag = true; sy = e.clientY; sh = bottom.offsetHeight;
+    drag = true;
+    sy = e.clientY;
+    sh = bottom.offsetHeight;
     handle._drag = true;
-    document.body.style.cssText = 'cursor:row-resize;user-select:none;';
+    document.body.style.cursor = 'row-resize';
+    document.body.style.userSelect = 'none';
+    e.preventDefault();
   });
   document.addEventListener('mousemove', e => {
     if (!drag) return;
-    const h = Math.max(90, Math.min(handle.parentElement.offsetHeight - 120, sh - (e.clientY - sy)));
+    const container = bottom.parentElement;
+    const maxH = container ? container.offsetHeight - 120 : 600;
+    const delta = sy - e.clientY;
+    const h = Math.max(90, Math.min(maxH, sh + delta));
     bottom.style.height = h + 'px';
     m1 && m1.layout(); m2 && m2.layout();
   });
   document.addEventListener('mouseup', () => {
-    if (!drag) return; drag = false; handle._drag = false;
-    handle.style.background = 'transparent'; document.body.style.cssText = '';
+    if (!drag) return;
+    drag = false;
+    handle._drag = false;
+    handle.style.background = 'transparent';
+    document.body.style.cursor = '';
+    document.body.style.userSelect = '';
   });
 }
 
@@ -1795,10 +1822,1133 @@ const COURSE_DATA = {
     { title:'Data Types: wire & reg', readTime:'10 min read', eyebrow:'Core Concepts', content:`<p>Use <code>wire</code> for values driven by <code>assign</code> statements. Use <code>reg</code> for values assigned inside <code>always</code> blocks.</p>` },
     { title:'Always Blocks', readTime:'12 min read', eyebrow:'Procedural Logic', content:`<p>Combinational: <code>always @(*)</code>. Sequential: <code>always @(posedge clk)</code>. The always block is the workhorse of Verilog.</p>` },
   ]},
-  systemverilog: { title:'SystemVerilog', badge:'Course 02', sections:[
-    { title:'Why SystemVerilog?', readTime:'7 min read', eyebrow:'Introduction', content:`<p>SystemVerilog extends Verilog with a richer type system, OOP constructs for verification, and synthesis-safe RTL improvements.</p>` },
-    { title:'Interfaces & Modports', readTime:'11 min read', eyebrow:'Connectivity', content:`<p>SystemVerilog interfaces bundle related signals into a single named connection.</p>` },
+  systemverilog: { title:'SystemVerilog Mastery', badge:'Course 02', sections:[
+    { title:'What Is SystemVerilog?', readTime:'10 min', eyebrow:'Part 1 — Foundations', content:`<p>SystemVerilog (IEEE 1800) is a unified hardware description and hardware verification language built on top of Verilog (IEEE 1364). It adds object-oriented constructs, assertions, functional coverage, constrained randomisation, and a richer type system. The same language is used to write synthesisable RTL, simulation testbenches, and formal property specifications.</p><h4>Design Abstraction Levels</h4><p>RTL (Register Transfer Level) describes data movement between registers on each clock edge. Behavioural code describes what a module computes without specifying implementation. Structural code connects sub-module instances with wires. SystemVerilog supports all three in the same file.</p><h4>A Minimal SystemVerilog Module</h4><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>module half_adder (
+  input  logic a,
+  input  logic b,
+  output logic sum,
+  output logic carry
+);
+  assign sum   = a ^ b;
+  assign carry = a & b;
+endmodule</code></pre></div><div class='cr-box fact'><div class='cr-box__label'>Interesting Fact</div><p>IEEE 1800-2023 has over 1,400 pages — longer than the C++ standard. Verilog was created at Gateway Design Automation in 1984, donated to the public domain in 1990, and SystemVerilog was first standardised as IEEE 1800-2005.</p></div>` },
+    { title:'Modules, Ports, and Instances', readTime:'12 min', eyebrow:'Part 1 — Foundations', content:`<p>Every design is a hierarchy of module instances. A module declares its interface through ports. Parameters allow the same module to be reused at different widths or depths without code duplication.</p><h4>Parameterised Adder</h4><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>module adder #(
+  parameter int WIDTH = 8
+) (
+  input  logic [WIDTH-1:0] a,
+  input  logic [WIDTH-1:0] b,
+  input  logic             cin,
+  output logic [WIDTH-1:0] sum,
+  output logic             cout
+);
+  assign {cout, sum} = {1'b0, a} + {1'b0, b} + cin;
+endmodule</code></pre></div><h4>Named Port Connections</h4><p>Always use named port connections when instantiating. Positional connections break silently when the sub-module's port order is changed.</p><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>adder #(.WIDTH(16)) u_add (
+  .a   (data_a),
+  .b   (data_b),
+  .cin (carry_in),
+  .sum (result),
+  .cout(carry_out)
+);</code></pre></div><h4>Wildcard Port Connection (.*)</h4><p>The <code>.*</code> shorthand connects every port whose name matches a signal of the same name in the enclosing scope. Use it carefully — it silently ignores unmatched ports.</p><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>logic [7:0] a, b, sum;
+logic cin, cout;
+
+adder #(.WIDTH(8)) u_add (.*);</code></pre></div><div class='cr-box warn'><div class='cr-box__label'>Common Mistake</div><p>Never connect ports by position. A port-order change in the sub-module silently connects wrong signals and produces a design that simulates but is functionally incorrect.</p></div>` },
+    { title:'Data Types — logic, bit, and Friends', readTime:'13 min', eyebrow:'Part 1 — Foundations', content:`<p>SystemVerilog has two families of types: <strong>4-state</strong> (can hold 0, 1, X, Z) and <strong>2-state</strong> (hold only 0 or 1). Choosing the wrong family hides real hardware bugs.</p><h4>4-State Types for RTL</h4><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>logic [7:0]  data_byte;
+logic [31:0] word;
+logic        enable;
+integer      legacy_int;</code></pre></div><h4>2-State Types for Testbenches</h4><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>bit [7:0]  byte_val;
+int        counter;
+longint    timestamp;
+byte       ascii_ch;
+shortint   small_cnt;</code></pre></div><h4>Signed Arithmetic</h4><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>logic signed [7:0]  s_val;
+logic        [7:0]  u_val;
+
+always_comb begin
+  s_val = -8'sd42;
+  u_val = 8'hFF;
+end</code></pre></div><div class='cr-box warn'><div class='cr-box__label'>Critical Rule</div><p>Never use <code>bit</code> or <code>int</code> for synthesisable RTL signals. These 2-state types simulate as 0 for uninitialised registers, hiding the X-propagation that would appear on real silicon after power-on without reset.</p></div><div class='cr-box tip'><div class='cr-box__label'>Tip</div><p>Use <code>logic</code> everywhere in RTL. Use <code>bit</code>, <code>int</code>, and <code>longint</code> freely in testbench classes and procedural blocks where X/Z cannot occur and simulation speed matters.</p></div>` },
+    { title:'Vectors, Arrays, Packed vs Unpacked', readTime:'13 min', eyebrow:'Part 1 — Foundations', content:`<p>Packed dimensions appear before the identifier and form a contiguous bit-vector that supports bitwise and arithmetic operators. Unpacked dimensions appear after the identifier; each element is stored independently.</p><h4>Packed and Unpacked Declarations</h4><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>logic [3:0][7:0]  packed_2d;
+logic [7:0]       unpacked_arr [4];
+logic [7:0]       mixed [4][8];
+
+packed_2d          = 32'hDEAD_BEEF;
+unpacked_arr[0]    = 8'hAA;
+mixed[1][3]        = 8'h5A;</code></pre></div><h4>Dynamic Arrays</h4><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>int dyn[];
+
+initial begin
+  dyn        = new[8];
+  dyn[3]     = 42;
+  dyn        = new[16](dyn);
+  $display("size=%0d val=%0d", dyn.size(), dyn[3]);
+end</code></pre></div><h4>Queues</h4><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>int q[$];
+
+initial begin
+  q.push_back(10);
+  q.push_back(20);
+  q.push_front(5);
+  $display("%0d", q.pop_front());
+  $display("size=%0d", q.size());
+end</code></pre></div><h4>Associative Arrays</h4><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>int      score  [string];
+logic    lookup [logic [7:0]];
+
+initial begin
+  score["alice"] = 95;
+  score["bob"]   = 87;
+  if (score.exists("alice"))
+    $display("alice=%0d", score["alice"]);
+  score.delete("bob");
+  $display("count=%0d", score.num());
+end</code></pre></div><div class='cr-box tip'><div class='cr-box__label'>Queue vs Dynamic Array</div><p>Use a queue when you need push/pop operations from either end. Use a dynamic array when you need fast indexed access and occasional resize. Queues grow incrementally; dynamic arrays allocate in one shot with <code>new[N]</code>.</p></div>` },
+    { title:'Structs, Unions, and Enums', readTime:'12 min', eyebrow:'Part 1 — Foundations', content:`<p>Structs bundle related fields under a single name. Packed structs map directly to a bit-vector and are synthesisable. Enums name the legal values of a variable, making FSM state encoding explicit and tool-readable.</p><h4>Packed Struct</h4><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>typedef struct packed {
+  logic [15:0] addr;
+  logic [7:0]  data;
+  logic        valid;
+  logic        ready;
+  logic        write;
+} axi_lite_t;
+
+axi_lite_t req_i, rsp_o;
+
+always_comb begin
+  rsp_o        = '0;
+  rsp_o.ready  = 1'b1;
+  rsp_o.data   = req_i.write ? 8'h00 : mem[req_i.addr];
+end</code></pre></div><h4>Enum for FSM</h4><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>typedef enum logic [2:0] {
+  S_IDLE   = 3'b000,
+  S_ADDR   = 3'b001,
+  S_DATA   = 3'b010,
+  S_RESP   = 3'b011,
+  S_ERROR  = 3'b100
+} state_t;
+
+state_t state, next;</code></pre></div><h4>Union</h4><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>typedef union packed {
+  logic [31:0] word;
+  struct packed {
+    logic [7:0] b3, b2, b1, b0;
+  } bytes;
+} word_u;
+
+word_u data;
+assign data.word = 32'hDEAD_BEEF;</code></pre></div><div class='cr-box fact'><div class='cr-box__label'>Interesting Fact</div><p>Calling <code>.name()</code> on an enum variable returns its string — e.g. <code>state.name()</code> returns "S_IDLE". This makes $display and assertion messages self-documenting without manual string arrays.</p></div>` },
+    { title:'Procedural Blocks: always_ff, always_comb, always_latch', readTime:'14 min', eyebrow:'Part 1 — Foundations', content:`<p>SystemVerilog replaces the generic <code>always</code> with three intent-specific variants. Each one is checked by the compiler and synthesis tool to enforce correct usage.</p><h4>always_ff — Sequential Logic</h4><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>module counter #(
+  parameter int WIDTH = 8
+) (
+  input  logic             clk,
+  input  logic             rst_n,
+  input  logic             enable,
+  input  logic             load,
+  input  logic [WIDTH-1:0] d,
+  output logic [WIDTH-1:0] q
+);
+  always_ff @(posedge clk or negedge rst_n) begin
+    if (!rst_n)
+      q <= '0;
+    else if (load)
+      q <= d;
+    else if (enable)
+      q <= q + 1'b1;
+  end
+endmodule</code></pre></div><h4>always_comb — Combinational Logic</h4><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>module mux4 #(
+  parameter int WIDTH = 8
+) (
+  input  logic [1:0]       sel,
+  input  logic [WIDTH-1:0] a, b, c, d,
+  output logic [WIDTH-1:0] y
+);
+  always_comb begin
+    y = '0;
+    case (sel)
+      2'b00: y = a;
+      2'b01: y = b;
+      2'b10: y = c;
+      2'b11: y = d;
+    endcase
+  end
+endmodule</code></pre></div><h4>Priority vs Unique Case</h4><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>always_comb begin
+  unique case (opcode)
+    4'h0: result = a + b;
+    4'h1: result = a - b;
+    4'h2: result = a & b;
+    4'h3: result = a | b;
+    default: result = '0;
+  endcase
+end</code></pre></div><div class='cr-box warn'><div class='cr-box__label'>Common Mistake</div><p>Using blocking assignment (<code>=</code>) in <code>always_ff</code> creates simulation races because multiple <code>always_ff</code> blocks may execute in any order. Use <code>&lt;=</code> exclusively for register updates inside <code>always_ff</code>.</p></div>` },
+    { title:'Tasks, Functions, and Packages', readTime:'12 min', eyebrow:'Part 1 — Foundations', content:`<p>Functions run in zero simulation time and return a value. Tasks may consume time, contain timing controls, and have no return value. Packages share type definitions, parameters, functions, and tasks across multiple files.</p><h4>Synthesisable Function</h4><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>function automatic logic [7:0] gray_to_bin (
+  input logic [7:0] g
+);
+  logic [7:0] b;
+  b[7] = g[7];
+  for (int i = 6; i >= 0; i--)
+    b[i] = b[i+1] ^ g[i];
+  return b;
+endfunction</code></pre></div><h4>Testbench Task</h4><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>task automatic drive_apb_write (
+  ref   logic        pclk,
+  ref   logic [31:0] paddr,
+  ref   logic [31:0] pwdata,
+  ref   logic        psel,
+  ref   logic        penable,
+  ref   logic        pwrite,
+  input logic [31:0] addr,
+  input logic [31:0] data
+);
+  @(posedge pclk);
+  paddr  <= addr;
+  pwdata <= data;
+  psel   <= 1'b1;
+  pwrite <= 1'b1;
+  penable<= 1'b0;
+  @(posedge pclk);
+  penable<= 1'b1;
+  @(posedge pclk);
+  psel   <= 1'b0;
+  penable<= 1'b0;
+endtask</code></pre></div><h4>Package</h4><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>package chip_pkg;
+  parameter int AXI_ADDR_W = 32;
+  parameter int AXI_DATA_W = 64;
+
+  typedef logic [AXI_ADDR_W-1:0] axi_addr_t;
+  typedef logic [AXI_DATA_W-1:0] axi_data_t;
+
+  typedef enum logic [1:0] {
+    OKAY   = 2'b00,
+    EXOKAY = 2'b01,
+    SLVERR = 2'b10,
+    DECERR = 2'b11
+  } axi_resp_t;
+endpackage
+
+import chip_pkg::*;</code></pre></div><div class='cr-box warn'><div class='cr-box__label'>Missing automatic</div><p>Without <code>automatic</code>, tasks and functions use static storage — all concurrent calls share one set of local variables. This produces non-deterministic results in multi-threaded testbenches.</p></div>` },
+    { title:'Interfaces and Modports', readTime:'13 min', eyebrow:'Part 2 — Interfaces & Clocking', content:`<p>An interface bundles signals, direction constraints, and even tasks/functions into a single connection object. Modports enforce direction from a particular perspective — master vs slave, driver vs monitor.</p><h4>AXI-Lite Interface</h4><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>interface axi_lite_if #(
+  parameter int AW = 32,
+  parameter int DW = 32
+) (
+  input logic aclk,
+  input logic aresetn
+);
+  logic [AW-1:0] awaddr;
+  logic           awvalid, awready;
+  logic [DW-1:0] wdata;
+  logic [DW/8-1:0] wstrb;
+  logic           wvalid, wready;
+  logic [1:0]    bresp;
+  logic           bvalid, bready;
+  logic [AW-1:0] araddr;
+  logic           arvalid, arready;
+  logic [DW-1:0] rdata;
+  logic [1:0]    rresp;
+  logic           rvalid, rready;
+
+  modport master (
+    input  aclk, aresetn,
+    output awaddr, awvalid, wdata, wstrb, wvalid, bready,
+           araddr, arvalid, rready,
+    input  awready, wready, bresp, bvalid, arready, rdata, rresp, rvalid
+  );
+
+  modport slave (
+    input  aclk, aresetn,
+    input  awaddr, awvalid, wdata, wstrb, wvalid, bready,
+           araddr, arvalid, rready,
+    output awready, wready, bresp, bvalid, arready, rdata, rresp, rvalid
+  );
+endinterface</code></pre></div><h4>DUT Using Modport</h4><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>module axi_slave (
+  axi_lite_if.slave bus
+);
+  logic [31:0] regs [256];
+
+  always_ff @(posedge bus.aclk or negedge bus.aresetn) begin
+    if (!bus.aresetn) begin
+      bus.awready <= 1'b0;
+      bus.wready  <= 1'b0;
+      bus.bvalid  <= 1'b0;
+    end else begin
+      bus.awready <= 1'b1;
+      bus.wready  <= 1'b1;
+      if (bus.awvalid && bus.wvalid)
+        regs[bus.awaddr[9:2]] <= bus.wdata;
+      bus.bvalid <= bus.awvalid && bus.wvalid;
+      bus.bresp  <= 2'b00;
+    end
+  end
+endmodule</code></pre></div><div class='cr-box warn'><div class='cr-box__label'>Forgetting the Modport</div><p>Without a modport, all signals in the interface are inout by default. Direction mismatches between DUT and testbench are silently ignored, producing X-driven signals that are very hard to debug.</p></div>` },
+    { title:'Clocking Blocks and Program Blocks', readTime:'13 min', eyebrow:'Part 2 — Interfaces & Clocking', content:`<p>A clocking block solves the testbench race condition: without it, the testbench drives signals in the same simulation region as the DUT samples them, leading to data/clock races. The clocking block creates a defined skew: inputs are sampled before the clock edge, outputs are driven after it.</p><h4>Clocking Block Inside Interface</h4><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>interface mem_if (
+  input logic clk
+);
+  logic [15:0] addr;
+  logic [7:0]  rdata, wdata;
+  logic        we, re, ack;
+
+  clocking drv_cb @(posedge clk);
+    default input  #1step;
+    default output #2ns;
+    output addr, wdata, we, re;
+    input  rdata, ack;
+  endclocking
+
+  clocking mon_cb @(posedge clk);
+    default input #1step;
+    input addr, wdata, rdata, we, re, ack;
+  endclocking
+
+  modport dut  (input clk, addr, wdata, we, re, output rdata, ack);
+  modport tb   (clocking drv_cb, clocking mon_cb);
+endinterface</code></pre></div><h4>Driving Through a Clocking Block</h4><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>task automatic mem_write (
+  input logic [15:0] addr,
+  input logic [7:0]  data,
+  virtual interface mem_if vif
+);
+  @(vif.drv_cb);
+  vif.drv_cb.addr  <= addr;
+  vif.drv_cb.wdata <= data;
+  vif.drv_cb.we    <= 1'b1;
+  vif.drv_cb.re    <= 1'b0;
+  @(vif.drv_cb);
+  vif.drv_cb.we    <= 1'b0;
+  @(vif.drv_cb iff vif.drv_cb.ack);
+endtask</code></pre></div><div class='cr-box fact'><div class='cr-box__label'>#1step Skew</div><p><code>#1step</code> samples signals in the Observed simulation region — after the Active region where the DUT's <code>always_ff</code> blocks update. This guarantees you read the registered output, not a mid-transition glitch.</p></div>` },
+    { title:'Generate Constructs', readTime:'11 min', eyebrow:'Part 2 — Interfaces & Clocking', content:`<p>Generate blocks conditionally or iteratively instantiate hardware at elaboration time. They are the SystemVerilog equivalent of C preprocessor directives but operate on the module hierarchy, not text.</p><h4>Generate for — Shift Register</h4><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>module shift_reg #(
+  parameter int DEPTH = 8,
+  parameter int WIDTH = 1
+) (
+  input  logic             clk,
+  input  logic [WIDTH-1:0] d,
+  output logic [WIDTH-1:0] q
+);
+  logic [WIDTH-1:0] chain [DEPTH];
+
+  genvar i;
+  generate
+    for (i = 0; i < DEPTH; i++) begin : stage
+      always_ff @(posedge clk)
+        chain[i] <= (i == 0) ? d : chain[i-1];
+    end
+  endgenerate
+
+  assign q = chain[DEPTH-1];
+endmodule</code></pre></div><h4>Generate if — Implementation Selection</h4><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>module mac #(
+  parameter string IMPL = "FAST",
+  parameter int    W    = 8
+) (
+  input  logic [W-1:0] a, b, c,
+  output logic [W-1:0] result
+);
+  generate
+    if (IMPL == "FAST") begin : g_fast
+      assign result = a * b + c;
+    end else begin : g_area
+      logic [W-1:0] mul_r;
+      always_ff @(posedge clk) mul_r <= a * b;
+      assign result = mul_r + c;
+    end
+  endgenerate
+endmodule</code></pre></div><div class='cr-box tip'><div class='cr-box__label'>Name Your Generate Blocks</div><p>Always label generate blocks with <code>begin : name</code>. Named blocks appear in the hierarchy path, so waveform viewers and assertion tools can reference <code>dut.stage[3].chain</code> rather than an anonymous index.</p></div>` },
+    { title:'Classes — OOP Fundamentals', readTime:'14 min', eyebrow:'Part 3 — Object-Oriented Testbenches', content:`<p>SystemVerilog classes are the core of modern verification. A class bundles data (properties) and behaviour (methods). Objects are heap-allocated at runtime with <code>new()</code> and reference-counted for garbage collection.</p><h4>Transaction Class</h4><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>class Axi4Transaction;
+  rand logic [31:0] addr;
+  rand logic [63:0] data;
+  rand logic [2:0]  size;
+  rand logic [1:0]  burst;
+  rand logic        write;
+
+  function new();
+    burst = 2'b01;
+    size  = 3'b010;
+  endfunction
+
+  function void display(string tag = "");
+    $display("[%s] addr=%08h data=%016h wr=%0b",
+             tag, addr, data, write);
+  endfunction
+
+  function Axi4Transaction clone();
+    clone         = new();
+    clone.addr    = this.addr;
+    clone.data    = this.data;
+    clone.size    = this.size;
+    clone.burst   = this.burst;
+    clone.write   = this.write;
+  endfunction
+endclass</code></pre></div><h4>Handle Semantics</h4><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>Axi4Transaction a = new();
+Axi4Transaction b = a;
+
+a.addr = 32'h1000;
+$display("%h", b.addr);
+
+Axi4Transaction c = a.clone();
+c.addr = 32'h2000;
+$display("%h %h", a.addr, c.addr);</code></pre></div><div class='cr-box warn'><div class='cr-box__label'>Null Handle</div><p>Accessing any property or method through an uninitialised class handle causes a fatal simulation abort. Guard with <code>assert(t != null)</code> or initialise at declaration: <code>Axi4Transaction t = new()</code>.</p></div>` },
+    { title:'Inheritance and Polymorphism', readTime:'13 min', eyebrow:'Part 3 — Object-Oriented Testbenches', content:`<p>SystemVerilog supports single inheritance. A child class extends the parent, inheriting all properties and methods. Virtual methods enable polymorphism — the correct overridden method is called through a parent-type handle.</p><h4>Base and Extended Classes</h4><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>class BaseSeqItem;
+  rand logic [31:0] addr;
+  rand logic        write;
+
+  function new();
+  endfunction
+
+  virtual function string kind();
+    return "BASE";
+  endfunction
+
+  virtual function void display();
+    $display("[%s] addr=%0h", kind(), addr);
+  endfunction
+endclass
+
+class WriteSeqItem extends BaseSeqItem;
+  rand logic [31:0] data;
+  rand logic [3:0]  strobe;
+
+  function new();
+    write  = 1'b1;
+    strobe = 4'hF;
+  endfunction
+
+  virtual function string kind();
+    return "WRITE";
+  endfunction
+
+  virtual function void display();
+    super.display();
+    $display("  data=%0h strb=%0b", data, strobe);
+  endfunction
+endclass
+
+class ReadSeqItem extends BaseSeqItem;
+  logic [31:0] rdata;
+
+  virtual function string kind();
+    return "READ";
+  endfunction
+endclass</code></pre></div><h4>Polymorphic Dispatch</h4><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>BaseSeqItem q[$];
+WriteSeqItem w = new();
+ReadSeqItem  r = new();
+
+q.push_back(w);
+q.push_back(r);
+
+foreach (q[i])
+  q[i].display();
+
+WriteSeqItem tmp;
+if ($cast(tmp, q[0]))
+  $display("cast ok: data=%0h", tmp.data);</code></pre></div><div class='cr-box fact'><div class='cr-box__label'>$cast</div><p>Use <code>$cast(child_handle, parent_handle)</code> to safely downcast. It returns 1 if the runtime type matches and 0 otherwise. Never use a C-style cast — it bypasses the type check.</p></div>` },
+    { title:'Randomisation and Constraints', readTime:'14 min', eyebrow:'Part 3 — Object-Oriented Testbenches', content:`<p>Constrained-random verification generates a far richer stimulus space than directed tests. The SV constraint solver finds legal values satisfying all active constraints before each <code>randomize()</code> call.</p><h4>Constrained Packet Class</h4><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>class EthPacket;
+  rand bit [7:0]  payload [];
+  rand bit [47:0] dst_mac;
+  rand bit [47:0] src_mac;
+  rand bit [15:0] ethertype;
+  rand bit        vlan_tagged;
+  rand bit [11:0] vlan_id;
+
+  constraint c_len    { payload.size() inside {[46:1500]}; }
+  constraint c_etype  { ethertype inside {16'h0800, 16'h0806, 16'h86DD}; }
+  constraint c_vlan   { vlan_tagged dist {1'b0:/70, 1'b1:/30}; }
+  constraint c_vid    { if (!vlan_tagged) vlan_id == 12'h0;
+                        else vlan_id inside {[1:4094]}; }
+  constraint c_no_bc  { dst_mac != 48'hFFFF_FFFF_FFFF; }
+endclass</code></pre></div><h4>Inline and Conditional Constraints</h4><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>EthPacket pkt = new();
+
+repeat (1000) begin
+  if (!pkt.randomize()) $fatal(0, "rand failed");
+  send(pkt);
+end
+
+if (!pkt.randomize() with {
+  ethertype == 16'h0806;
+  payload.size() == 46;
+})
+  $fatal(0, "ARP rand failed");
+
+pkt.c_no_bc.constraint_mode(0);
+void'(pkt.randomize());
+pkt.c_no_bc.constraint_mode(1);</code></pre></div><h4>randc — Cyclic Randomisation</h4><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>class BurstGen;
+  randc logic [3:0] burst_len;
+
+  function void gen_all();
+    repeat (16) begin
+      void'(this.randomize());
+      $display("len=%0d", burst_len);
+    end
+  endfunction
+endclass</code></pre></div><div class='cr-box warn'><div class='cr-box__label'>Unsatisfiable Constraints</div><p>Always check the return of <code>randomize()</code>. If constraints conflict, it returns 0 and all <code>rand</code> variables retain their previous values. Use <code>$fatal</code> on failure — silent continuation causes hard-to-find bugs.</p></div>` },
+    { title:'Mailboxes, Events, and Semaphores', readTime:'12 min', eyebrow:'Part 3 — Object-Oriented Testbenches', content:`<p>These three primitives synchronise and communicate between concurrent threads in a SystemVerilog testbench.</p><h4>Typed Mailbox — Producer / Consumer</h4><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>class Monitor;
+  mailbox #(EthPacket) mbx;
+
+  function new(mailbox #(EthPacket) m);
+    mbx = m;
+  endfunction
+
+  task run();
+    EthPacket pkt;
+    forever begin
+      @(posedge vif.mon_cb.valid);
+      pkt = new();
+      capture(pkt);
+      mbx.put(pkt);
+    end
+  endtask
+
+  task capture(EthPacket pkt);
+  endtask
+endclass
+
+class Scoreboard;
+  mailbox #(EthPacket) mbx;
+
+  task run();
+    EthPacket rx;
+    forever begin
+      mbx.get(rx);
+      check(rx);
+    end
+  endtask
+
+  task check(EthPacket rx);
+  endtask
+endclass</code></pre></div><h4>Events</h4><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>event cfg_done;
+event reset_done;
+
+fork
+  begin
+    apply_reset();
+    -> reset_done;
+  end
+  begin
+    wait(reset_done.triggered);
+    configure_dut();
+    -> cfg_done;
+  end
+  begin
+    wait(cfg_done.triggered);
+    run_traffic();
+  end
+join</code></pre></div><h4>Semaphore — Shared Resource Guard</h4><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>semaphore bus_lock = new(1);
+
+task drive_agent_a();
+  bus_lock.get(1);
+  drive_transaction(txn_a);
+  bus_lock.put(1);
+endtask
+
+task drive_agent_b();
+  bus_lock.get(1);
+  drive_transaction(txn_b);
+  bus_lock.put(1);
+endtask</code></pre></div><div class='cr-box warn'><div class='cr-box__label'>@event vs wait(event.triggered)</div><p><code>@(done)</code> misses a trigger that fired before the thread reaches that line. <code>wait(done.triggered)</code> succeeds immediately if the event triggered at any earlier time in the same simulation timestep or before.</p></div>` },
+    { title:'Fork-Join and Thread Control', readTime:'13 min', eyebrow:'Part 3 — Object-Oriented Testbenches', content:`<p>The fork-join family launches parallel threads. The three flavours control when the spawning thread resumes.</p><h4>All Three Flavours</h4><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>initial begin
+  fork
+    seq_a.run();
+    seq_b.run();
+  join
+
+  fork
+    seq_c.run();
+    begin #10000; $fatal(0,"timeout"); end
+  join_any
+  disable fork;
+
+  fork
+    background_monitor();
+  join_none
+
+  $display("TB continues here");
+end</code></pre></div><h4>Named Process Handle</h4><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>process p_mon;
+
+initial begin
+  fork
+    begin
+      p_mon = process::self();
+      forever monitor_bus();
+    end
+  join_none
+
+  #50000;
+  p_mon.kill();
+  $display("monitor stopped at %0t", $time);
+end</code></pre></div><h4>Automatic Local Variables in Forks</h4><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>initial begin
+  for (int i = 0; i < 4; i++) begin
+    automatic int idx = i;
+    fork
+      begin
+        #(idx * 10);
+        $display("thread %0d at %0t", idx, $time);
+      end
+    join_none
+  end
+  wait fork;
+end</code></pre></div><div class='cr-box warn'><div class='cr-box__label'>Loop Variable Capture</div><p>Without <code>automatic int idx = i</code>, all forked threads share the same <code>i</code> variable and print the same final value. Always create an automatic copy of the loop variable when forking inside a loop.</p></div>` },
+    { title:'Immediate Assertions', readTime:'11 min', eyebrow:'Part 4 — Assertions & Coverage', content:`<p>Immediate assertions evaluate a Boolean expression exactly when the simulator executes them, like an if statement. They are synthesisable and appear inside procedural blocks.</p><h4>Named Assertions with Severity</h4><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>module fifo #(
+  parameter int DEPTH = 16
+) (
+  input  logic clk, rst_n,
+  input  logic push, pop,
+  output logic full, empty,
+  output logic [$clog2(DEPTH):0] count
+);
+  always_ff @(posedge clk or negedge rst_n) begin
+    if (!rst_n) begin
+      count <= '0;
+      full  <= 1'b0;
+      empty <= 1'b1;
+    end else begin
+      a_no_overflow:  assert (!(push && full))
+        else $fatal(0, "FIFO overflow at %0t", $time);
+      a_no_underflow: assert (!(pop && empty))
+        else $fatal(0, "FIFO underflow at %0t", $time);
+      a_count_range:  assert (count <= DEPTH)
+        else $error("count=%0d exceeds DEPTH=%0d", count, DEPTH);
+
+      case ({push, pop})
+        2'b10:   count <= count + 1'b1;
+        2'b01:   count <= count - 1'b1;
+        default: count <= count;
+      endcase
+      full  <= (count == DEPTH - 1) && push && !pop;
+      empty <= (count == 1) && pop && !push;
+    end
+  end
+endmodule</code></pre></div><div class='cr-box tip'><div class='cr-box__label'>Label Every Assertion</div><p>Named assertions appear in simulator logs, coverage reports, and formal tool output with that exact label. <code>a_no_overflow</code> is immediately actionable in a regression log; an anonymous assertion is not.</p></div>` },
+    { title:'Concurrent Assertions and SVA Sequences', readTime:'14 min', eyebrow:'Part 4 — Assertions & Coverage', content:`<p>Concurrent assertions check temporal behaviour over clock cycles using the SystemVerilog Assertion (SVA) sublanguage. They are evaluated at every sampling clock edge and are the primary input to formal verification tools.</p><h4>Property with Implication</h4><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>property p_req_ack;
+  @(posedge clk) disable iff (!rst_n)
+  req |-> ##[1:8] ack;
+endproperty
+
+property p_ack_after_req;
+  @(posedge clk) disable iff (!rst_n)
+  $rose(req) |=> ##[0:7] ack;
+endproperty
+
+a_req_ack:     assert property (p_req_ack)
+  else $error("ACK missing within 8 cycles of REQ");
+c_req_ack_cov: cover  property (p_ack_after_req);</code></pre></div><h4>Sequences with Operators</h4><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>sequence s_write_burst;
+  wvalid [*1:$] ##1 !wvalid;
+endsequence
+
+sequence s_data_stable;
+  (wvalid, $stable(wdata)) throughout wvalid [*1:$];
+endsequence
+
+sequence s_handshake;
+  valid && !ready ##1 (valid && ready)[->1];
+endsequence
+
+a_data_stable: assert property (
+  @(posedge clk) wvalid |-> s_data_stable);
+
+a_handshake: assert property (
+  @(posedge clk) disable iff (!rst_n)
+  $rose(valid) |-> s_handshake);</code></pre></div><h4>Multi-clock Property</h4><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>property p_cdc_flag;
+  @(posedge clk_src)  flag_src
+  |-> @(posedge clk_dst) ##[1:4] flag_dst;
+endproperty
+
+a_cdc: assert property (p_cdc_flag);</code></pre></div><div class='cr-box warn'><div class='cr-box__label'>|-&gt; vs |=&gt;</div><p><code>p |-&gt; q</code>: q must hold starting in the SAME cycle p is true (overlapping). <code>p |=&gt; q</code>: q must hold starting in the NEXT cycle (non-overlapping). Confusing these is the single most common SVA bug in pipelined protocol descriptions.</p></div>` },
+    { title:'Functional Coverage — covergroup', readTime:'13 min', eyebrow:'Part 4 — Assertions & Coverage', content:`<p>Functional coverage quantifies whether your tests have exercised the behaviours listed in the verification plan. The simulator tracks which bins have been hit and reports a percentage. Coverage holes drive further test creation.</p><h4>Transaction covergroup</h4><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>covergroup cg_axi_txn @(posedge clk iff valid);
+  option.per_instance = 1;
+
+  cp_op: coverpoint write {
+    bins rd  = {1'b0};
+    bins wr  = {1'b1};
+  }
+
+  cp_size: coverpoint burst_size {
+    bins byte_acc  = {3'b000};
+    bins hw_acc    = {3'b001};
+    bins word_acc  = {3'b010};
+    bins dword_acc = {3'b011};
+  }
+
+  cp_addr_range: coverpoint addr[31:28] {
+    bins lo_mem   = {[4'h0:4'h3]};
+    bins hi_mem   = {[4'h4:4'h7]};
+    bins mmio     = {[4'hC:4'hF]};
+    ignore_bins rsvd = default;
+  }
+
+  cx_op_x_size: cross cp_op, cp_size;
+endcovergroup
+
+cg_axi_txn cg_inst = new();</code></pre></div><h4>Inline and Standalone Covergroups</h4><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>class AXIDriver;
+  covergroup cg_burst (int max_len) @(posedge clk);
+    cp_len: coverpoint burst_len {
+      bins single = {1};
+      bins short  = {[2:8]};
+      bins long   = {[9:max_len]};
+    }
+  endgroup
+
+  function new();
+    cg_burst = new(16);
+  endfunction
+endclass</code></pre></div><div class='cr-box tip'><div class='cr-box__label'>Coverage-Driven Verification</div><p>Feed coverage reports back into your constraint solver. When a bin reaches 100%, use <code>constraint_mode(0)</code> to stop generating that corner and focus random energy on uncovered bins.</p></div>` },
+    { title:'Finite State Machines', readTime:'13 min', eyebrow:'Part 5 — Advanced RTL Patterns', content:`<p>SystemVerilog FSMs use the three-process style: one <code>always_ff</code> for the state register, one <code>always_comb</code> for next-state logic, one <code>always_comb</code> for output logic. The enum encodes states explicitly, and synthesis tools can optimise the encoding.</p><h4>AXI Write FSM</h4><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>typedef enum logic [2:0] {
+  WR_IDLE  = 3'b000,
+  WR_ADDR  = 3'b001,
+  WR_DATA  = 3'b010,
+  WR_STRB  = 3'b011,
+  WR_RESP  = 3'b100
+} wr_state_t;
+
+wr_state_t state, next;
+
+always_ff @(posedge clk or negedge rst_n)
+  if (!rst_n) state <= WR_IDLE;
+  else        state <= next;
+
+always_comb begin
+  next = state;
+  unique case (state)
+    WR_IDLE: if (start)             next = WR_ADDR;
+    WR_ADDR: if (awvalid && awready) next = WR_DATA;
+    WR_DATA: if (wvalid && wready)   next = WR_STRB;
+    WR_STRB: if (wlast)              next = WR_RESP;
+    WR_RESP: if (bvalid && bready)   next = WR_IDLE;
+  endcase
+end
+
+always_comb begin
+  awvalid_o = 1'b0;
+  wvalid_o  = 1'b0;
+  bready_o  = 1'b0;
+  done_o    = 1'b0;
+  unique case (state)
+    WR_ADDR: awvalid_o = 1'b1;
+    WR_DATA,
+    WR_STRB: wvalid_o  = 1'b1;
+    WR_RESP: bready_o  = 1'b1;
+    default: done_o    = (state == WR_IDLE);
+  endcase
+end</code></pre></div><div class='cr-box warn'><div class='cr-box__label'>Default Output Values</div><p>Assign every output a default value at the top of the output <code>always_comb</code> block before the case statement. Failing to do so infers a latch on any output not assigned in every case arm — the most common unintended latch source in RTL.</p></div>` },
+    { title:'Parameterisation and Generic RTL', readTime:'12 min', eyebrow:'Part 5 — Advanced RTL Patterns', content:`<p>Parameterised RTL can be reused across projects without modification. Type parameters extend this to structural polymorphism — a FIFO of structs, an arbiter over any data type.</p><h4>Parameterised Synchronous FIFO</h4><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>module sync_fifo #(
+  parameter int          DEPTH  = 16,
+  parameter int          WIDTH  = 8,
+  parameter type         DATA_T = logic [WIDTH-1:0]
+) (
+  input  logic   clk, rst_n,
+  input  logic   push,
+  input  DATA_T  din,
+  input  logic   pop,
+  output DATA_T  dout,
+  output logic   full,
+  output logic   empty,
+  output logic [$clog2(DEPTH):0] count
+);
+  localparam int PTR_W = $clog2(DEPTH);
+
+  DATA_T mem [DEPTH];
+  logic [PTR_W:0] wr_ptr, rd_ptr;
+
+  assign count = wr_ptr - rd_ptr;
+  assign full  = (count == DEPTH);
+  assign empty = (count == '0);
+  assign dout  = mem[rd_ptr[PTR_W-1:0]];
+
+  always_ff @(posedge clk or negedge rst_n) begin
+    if (!rst_n) begin
+      wr_ptr <= '0;
+      rd_ptr <= '0;
+    end else begin
+      if (push && !full)  begin
+        mem[wr_ptr[PTR_W-1:0]] <= din;
+        wr_ptr <= wr_ptr + 1'b1;
+      end
+      if (pop  && !empty) rd_ptr <= rd_ptr + 1'b1;
+    end
+  end
+endmodule</code></pre></div><h4>Instantiating with a Struct Type</h4><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>typedef struct packed {
+  logic [31:0] addr;
+  logic [63:0] data;
+  logic        write;
+} req_t;
+
+sync_fifo #(
+  .DEPTH (8),
+  .DATA_T(req_t)
+) u_req_fifo (
+  .clk   (clk),
+  .rst_n (rst_n),
+  .push  (req_valid),
+  .din   (req_in),
+  .pop   (req_rd),
+  .dout  (req_out),
+  .full  (req_full),
+  .empty (req_empty),
+  .count ()
+);</code></pre></div><div class='cr-box fact'><div class='cr-box__label'>Type Parameters</div><p>Type parameters let you create a FIFO of structs, a priority queue of classes, or any container without code duplication — analogous to C++ templates but operating at the elaboration level.</p></div>` },
+    { title:'Clock Domain Crossing Techniques', readTime:'14 min', eyebrow:'Part 5 — Advanced RTL Patterns', content:`<p>Metastability occurs when a flip-flop's setup or hold time is violated — its output resolves to an indeterminate level. CDC is a leading cause of silicon re-spins. SystemVerilog helps you describe safe CDC structures; dedicated tools (VC SpyGlass CDC, Meridian CDC) verify the full design.</p><h4>Two-Flop Synchroniser</h4><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>module sync2ff #(
+  parameter int W         = 1,
+  parameter int RST_VAL   = 0
+) (
+  input  logic         dst_clk,
+  input  logic         dst_rst_n,
+  input  logic [W-1:0] async_in,
+  output logic [W-1:0] sync_out
+);
+  logic [W-1:0] stage1;
+
+  (* ASYNC_REG = "TRUE" *)
+  always_ff @(posedge dst_clk or negedge dst_rst_n) begin
+    if (!dst_rst_n) begin
+      stage1   <= W'(RST_VAL);
+      sync_out <= W'(RST_VAL);
+    end else begin
+      stage1   <= async_in;
+      sync_out <= stage1;
+    end
+  end
+endmodule</code></pre></div><h4>Gray-Coded FIFO Pointer Crossing</h4><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>function automatic logic [W-1:0] bin_to_gray (
+  input logic [W-1:0] b
+);
+  return b ^ (b >> 1);
+endfunction
+
+function automatic logic [W-1:0] gray_to_bin (
+  input logic [W-1:0] g
+);
+  logic [W-1:0] b;
+  b[W-1] = g[W-1];
+  for (int i = W-2; i >= 0; i--)
+    b[i] = b[i+1] ^ g[i];
+  return b;
+endfunction</code></pre></div><div class='cr-box warn'><div class='cr-box__label'>Never Synchronise Multi-Bit Buses Directly</div><p>Only single-bit signals or Gray-coded values may pass through a two-flop synchroniser. Multi-bit binary values have multiple bits changing simultaneously — different bits may resolve at different times, producing a corrupt intermediate code on the destination side.</p></div>` },
+    { title:'Low-Power Coding Patterns', readTime:'12 min', eyebrow:'Part 5 — Advanced RTL Patterns', content:`<p>Dynamic power is proportional to switching activity. RTL coding style directly controls how many signals toggle per cycle. Clock gating, operand isolation, and power-aware resets are the primary techniques.</p><h4>Clock Gating — Synthesis-Inferred</h4><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>module power_reg #(
+  parameter int W = 32
+) (
+  input  logic         clk,
+  input  logic         rst_n,
+  input  logic         enable,
+  input  logic [W-1:0] d,
+  output logic [W-1:0] q
+);
+  always_ff @(posedge clk or negedge rst_n) begin
+    if (!rst_n)
+      q <= '0;
+    else if (enable)
+      q <= d;
+  end
+endmodule</code></pre></div><h4>Operand Isolation</h4><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>module mult_unit #(
+  parameter int W = 16
+) (
+  input  logic          clk,
+  input  logic          en,
+  input  logic [W-1:0]  a, b,
+  output logic [2*W-1:0] result
+);
+  logic [W-1:0] a_iso, b_iso;
+
+  assign a_iso = en ? a : '0;
+  assign b_iso = en ? b : '0;
+
+  always_ff @(posedge clk)
+    result <= a_iso * b_iso;
+endmodule</code></pre></div><h4>Power Domain Reset Sequencing</h4><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>module pd_ctrl (
+  input  logic sys_rst_n,
+  input  logic pd_on,
+  output logic pd_rst_n,
+  output logic iso_en,
+  output logic ret_en
+);
+  always_ff @(posedge clk or negedge sys_rst_n) begin
+    if (!sys_rst_n) begin
+      iso_en   <= 1'b1;
+      ret_en   <= 1'b0;
+      pd_rst_n <= 1'b0;
+    end else if (pd_on) begin
+      ret_en   <= 1'b1;
+      iso_en   <= 1'b0;
+      pd_rst_n <= 1'b1;
+    end
+  end
+endmodule</code></pre></div><div class='cr-box tip'><div class='cr-box__label'>Operand Isolation</div><p>Gating multiplier inputs to zero when the unit is idle can reduce dynamic power by 30-50% on wide datapaths. Synthesis tools can infer this from conditional assignments but an explicit gate makes intent clear to power analysis tools.</p></div>` },
+    { title:'UVM Architecture Overview', readTime:'12 min', eyebrow:'Part 6 — UVM Fundamentals', content:`<p>The Universal Verification Methodology (UVM, IEEE 1800.2) defines a standardised class library for building scalable, reusable testbenches. Every component extends a UVM base class, executes through a shared phasing system, and communicates through TLM ports.</p><h4>UVM Agent Skeleton</h4><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>class axi_agent extends uvm_agent;
+  \`uvm_component_utils(axi_agent)
+
+  axi_driver                    drv;
+  axi_monitor                   mon;
+  uvm_sequencer #(axi_seq_item) seqr;
+
+  function new(string name, uvm_component parent);
+    super.new(name, parent);
+  endfunction
+
+  function void build_phase(uvm_phase phase);
+    super.build_phase(phase);
+    drv  = axi_driver ::type_id::create("drv",  this);
+    mon  = axi_monitor::type_id::create("mon",  this);
+    seqr = uvm_sequencer #(axi_seq_item)::type_id::create("seqr", this);
+  endfunction
+
+  function void connect_phase(uvm_phase phase);
+    drv.seq_item_port.connect(seqr.seq_item_export);
+  endfunction
+endclass</code></pre></div><h4>UVM Driver</h4><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>class axi_driver extends uvm_driver #(axi_seq_item);
+  \`uvm_component_utils(axi_driver)
+
+  virtual axi_lite_if vif;
+
+  function void build_phase(uvm_phase phase);
+    super.build_phase(phase);
+    if (!uvm_config_db #(virtual axi_lite_if)::get(
+        this, "", "vif", vif))
+      \`uvm_fatal("NO_VIF","Cannot get virtual interface")
+  endfunction
+
+  task run_phase(uvm_phase phase);
+    axi_seq_item req;
+    forever begin
+      seq_item_port.get_next_item(req);
+      drive(req);
+      seq_item_port.item_done();
+    end
+  endtask
+
+  task drive(axi_seq_item req);
+    @(vif.drv_cb);
+    vif.drv_cb.awaddr  <= req.addr;
+    vif.drv_cb.awvalid <= 1'b1;
+    @(vif.drv_cb iff vif.drv_cb.awready);
+    vif.drv_cb.awvalid <= 1'b0;
+  endtask
+endclass</code></pre></div><div class='cr-box warn'><div class='cr-box__label'>Missing uvm_component_utils</div><p>Without the registration macro, the UVM factory cannot create or override this class by name. Every class that extends a UVM base class — component or object — must have the matching <code>\`uvm_component_utils</code> or <code>\`uvm_object_utils</code> macro.</p></div>` },
+    { title:'UVM Sequences and Factory Overrides', readTime:'14 min', eyebrow:'Part 6 — UVM Fundamentals', content:`<p>Sequences are UVM objects that generate stimulus transactions. The factory decouples object creation from the class name so tests can substitute specialised variants without touching shared verification infrastructure.</p><h4>Sequence and Sequence Item</h4><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>class axi_seq_item extends uvm_sequence_item;
+  \`uvm_object_utils(axi_seq_item)
+
+  rand logic [31:0] addr;
+  rand logic [31:0] data;
+  rand logic        write;
+  rand logic [3:0]  strobe;
+
+  constraint c_strobe { write -> strobe != 4'h0; }
+  constraint c_align  { addr[1:0] == 2'b00; }
+
+  function new(string name = "axi_seq_item");
+    super.new(name);
+  endfunction
+endclass
+
+class axi_rw_seq extends uvm_sequence #(axi_seq_item);
+  \`uvm_object_utils(axi_rw_seq)
+
+  int unsigned num_txn = 20;
+
+  task body();
+    axi_seq_item req;
+    repeat (num_txn) begin
+      req = axi_seq_item::type_id::create("req");
+      start_item(req);
+      if (!req.randomize())
+        \`uvm_fatal("RAND","randomize failed")
+      finish_item(req);
+    end
+  endtask
+endclass</code></pre></div><h4>Factory Override in a Test</h4><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>class axi_error_seq_item extends axi_seq_item;
+  \`uvm_object_utils(axi_error_seq_item)
+
+  constraint c_bad_addr { addr[1:0] != 2'b00; }
+endclass
+
+class axi_error_test extends axi_base_test;
+  \`uvm_component_utils(axi_error_test)
+
+  function void build_phase(uvm_phase phase);
+    super.build_phase(phase);
+    axi_seq_item::type_id::set_type_override(
+      axi_error_seq_item::get_type());
+  endfunction
+endclass</code></pre></div><div class='cr-box tip'><div class='cr-box__label'>Virtual Sequences</div><p>A virtual sequence coordinates multiple agents. It holds handles to multiple sequencers and starts sub-sequences on each in a controlled order. This is the standard pattern for SoC-level tests where multiple buses must be driven in precise temporal relationship.</p></div>` },
+    { title:'Simulation Scheduling and System Tasks', readTime:'13 min', eyebrow:'Part 7 — Simulation & Debug', content:`<p>The SystemVerilog event scheduler defines the order in which signal updates and procedural code execute within a single timestep. Understanding it is essential for interpreting waveforms and avoiding races.</p><h4>Scheduling Regions — Ordered</h4><p>Within one timestep: <strong>Preponed &rarr; Active (RTL blocking) &rarr; NBA (non-blocking &lt;=) &rarr; Observed (clocking block sampling) &rarr; Reactive (testbench) &rarr; Re-Active &rarr; Postponed ($strobe)</strong>.</p><h4>Delta Cycles</h4><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>module delta_demo;
+  logic a, b, c;
+
+  assign b = a;
+  assign c = b;
+
+  initial begin
+    a = 1'b0;
+    #10 a = 1'b1;
+    $strobe("settled: b=%b c=%b", b, c);
+  end
+endmodule</code></pre></div><h4>System Task Reference</h4><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>initial begin
+  $display("%0t: count=%0d data=%0h", $time, count, data);
+  $strobe ("%0t: settled=%b",         $time, out);
+  $monitor("%0t: q=%h",               $time, q);
+
+  if ($test$plusargs("WAVES")) begin
+    $dumpfile("sim.vcd");
+    $dumpvars(0, tb_top);
+  end
+
+  int fd;
+  fd = $fopen("results.log","w");
+  $fdisplay(fd, "PASS: count=%0d", count);
+  $fclose(fd);
+
+  logic [7:0] mem [256];
+  $readmemh("init.hex", mem);
+
+  int seed;
+  if (!$value$plusargs("SEED=%d", seed)) seed = 42;
+  $srandom(seed);
+end</code></pre></div><div class='cr-box fact'><div class='cr-box__label'>$display vs $strobe</div><p><code>$display</code> prints in the Active region where glitches may still be present. <code>$strobe</code> prints in the Postponed region after all delta cycles have settled. Always use <code>$strobe</code> when verifying combinational output values.</p></div>` },
+    { title:'Formal Verification with SVA', readTime:'14 min', eyebrow:'Part 8 — Pro Topics', content:`<p>Formal verification (FV) uses mathematical techniques to exhaustively prove that an RTL design satisfies a set of properties for all possible inputs, not just simulated scenarios. Tools include Synopsys VC Formal, Cadence JasperGold, and Siemens Questa Formal.</p><h4>Assume-Assert-Cover Pattern</h4><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>\`ifdef FORMAL
+  default clocking @(posedge clk); endclocking
+  default disable iff (!rst_n);
+
+  assume property (!(push && pop && full));
+  assume property ($onehot0({push, pop}));
+
+  a_no_overflow:  assert property (push |-> !full);
+  a_no_underflow: assert property (pop  |-> !empty);
+  a_count_max:    assert property (count <= DEPTH);
+  a_full_empty:   assert property (!(full && empty));
+
+  c_reach_full:   cover  property (full);
+  c_reach_empty:  cover  property (empty);
+  c_push_pop:     cover  property (push && pop);
+\`endif</code></pre></div><h4>Checker Module for bind Injection</h4><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>module fifo_checker #(
+  parameter int DEPTH = 16
+) (
+  input logic clk, rst_n,
+  input logic push, pop,
+  input logic full, empty,
+  input logic [$clog2(DEPTH):0] count
+);
+  default clocking @(posedge clk); endclocking
+  default disable iff (!rst_n);
+
+  a_overflow:  assert property (push |-> !full);
+  a_underflow: assert property (pop  |-> !empty);
+  a_count:     assert property (count <= DEPTH);
+
+  c_full:      cover  property (full  ##1 pop);
+  c_empty:     cover  property (empty ##1 push);
+endmodule
+
+bind sync_fifo fifo_checker #(.DEPTH(DEPTH)) u_chk (
+  .clk  (clk),
+  .rst_n(rst_n),
+  .push (push),
+  .pop  (pop),
+  .full (full),
+  .empty(empty),
+  .count(count)
+);</code></pre></div><div class='cr-box fact'><div class='cr-box__label'>Unbounded Proof</div><p>Formal tools can prove properties for ALL time (k-induction or invariant inference) not just bounded simulation depth. RTL bugs reachable only after hundreds of cycles — invisible to simulation — are found in seconds.</p></div>` },
+    { title:'DPI-C — Calling C from SystemVerilog', readTime:'13 min', eyebrow:'Part 8 — Pro Topics', content:`<p>The Direct Programming Interface (DPI) allows SystemVerilog to call C/C++ functions and vice versa. It is used for high-speed reference models, reusing existing C libraries (CRC, compression, crypto), and co-simulation.</p><h4>SV Import Declaration</h4><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>import "DPI-C" pure function int unsigned
+  crc32_compute (
+    input byte unsigned data[],
+    input int unsigned  length
+  );
+
+import "DPI-C" function void
+  ref_model_init (
+    input int unsigned seed
+  );
+
+import "DPI-C" function int unsigned
+  ref_model_predict (
+    input  logic [31:0] addr,
+    input  logic [31:0] wdata,
+    input  logic        write,
+    output logic [31:0] rdata_exp
+  );</code></pre></div><h4>C Implementation</h4><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>#include "svdpi.h"
+#include <stdint.h>
+
+unsigned int crc32_compute(
+    const svOpenArrayHandle data,
+    unsigned int length)
+{
+    unsigned int crc = 0xFFFFFFFF;
+    for (unsigned int i = 0; i < length; i++) {
+        uint8_t byte = *(uint8_t*)svGetArrElemPtr1(data, i);
+        for (int b = 0; b < 8; b++) {
+            if ((crc ^ byte) & 1)
+                crc = (crc >> 1) ^ 0xEDB88320;
+            else
+                crc >>= 1;
+            byte >>= 1;
+        }
+    }
+    return crc ^ 0xFFFFFFFF;
+}</code></pre></div><div class='cr-box warn'><div class='cr-box__label'>DPI Thread Safety</div><p>DPI-C functions are not re-entrant by default. Calling the same C function from multiple forked threads simultaneously corrupts shared static state in the C code. Protect shared C resources with a SystemVerilog semaphore around each DPI call, or mark the function <code>context</code> and use a thread-local reference model.</p></div>` },
+    { title:'Synthesis Directives and Timing Constraints', readTime:'12 min', eyebrow:'Part 8 — Pro Topics', content:`<p>Synthesis attributes control optimisation and mapping without changing RTL semantics. SDC (Synopsys Design Constraints) timing constraints drive both synthesis and static timing analysis.</p><h4>Common Synthesis Attributes</h4><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>(* keep = "true" *)             logic dbg_sig;
+(* ASYNC_REG = "TRUE" *)        logic [1:0] sync_ff;
+(* dont_touch = "yes" *)        logic crit_net;
+(* MAX_FANOUT = 32 *)            logic high_fan;
+(* ram_style = "block" *)       logic [7:0] bram [1024];
+(* use_dsp = "yes" *)           logic [31:0] dsp_result;
+
+always_comb begin
+  (* full_case, parallel_case *)
+  case (state)
+    2'b00: out = 4'h1;
+    2'b01: out = 4'h2;
+    2'b10: out = 4'h4;
+    2'b11: out = 4'h8;
+  endcase
+end</code></pre></div><h4>Key SDC Constraints</h4><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>create_clock -name clk -period 4.0 [get_ports clk]
+
+create_generated_clock \
+  -name clk_div2 \
+  -source [get_ports clk] \
+  -divide_by 2 \
+  [get_pins u_clkdiv/Q]
+
+set_input_delay  -clock clk -max 0.8 [get_ports data_in]
+set_output_delay -clock clk -max 0.5 [get_ports data_out]
+
+set_false_path   -from [get_clocks clk_a] -to [get_clocks clk_b]
+
+set_multicycle_path 2 -setup \
+  -from [get_cells u_mac/*] \
+  -to   [get_cells u_result_reg/*]</code></pre></div><div class='cr-box warn'><div class='cr-box__label'>parallel_case Misuse</div><p><code>parallel_case</code> tells synthesis the case arms are mutually exclusive. If they are not, synthesis produces logic that differs from simulation — a silent correctness bug. Only apply it when you can formally verify mutual exclusivity of all arms.</p></div>` },
+    { title:'Industry Coding Standards', readTime:'13 min', eyebrow:'Part 8 — Pro Topics', content:`<p>Large design teams adopt coding standards to ensure consistency, tool compatibility, and long-term maintainability. These guidelines are drawn from the Sunburst Design papers, the IEEE 1800.1 Recommended Practice, and ASIC industry practice.</p><h4>Naming Conventions</h4><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>logic [7:0]  data_i;
+logic [7:0]  data_o;
+logic        rst_n;
+logic        clk;
+logic [7:0]  count_r;
+
+parameter int BUS_WIDTH = 32;
+
+typedef logic [31:0] word_t;
+
+interface apb_if;
+
+package bus_pkg;
+endpackage</code></pre></div><h4>Complete RTL Module Template</h4><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>module my_module #(
+  parameter int DATA_W = 8,
+  parameter int ADDR_W = 16
+) (
+  input  logic             clk,
+  input  logic             rst_n,
+  input  logic [DATA_W-1:0] data_i,
+  input  logic [ADDR_W-1:0] addr_i,
+  input  logic             valid_i,
+  output logic [DATA_W-1:0] data_o,
+  output logic             ready_o,
+  output logic             valid_o
+);
+
+  localparam int MEM_DEPTH = 2**ADDR_W;
+
+  logic [DATA_W-1:0] mem_r [MEM_DEPTH];
+  logic [DATA_W-1:0] data_r;
+  logic              valid_r;
+
+  always_ff @(posedge clk or negedge rst_n) begin
+    if (!rst_n) begin
+      data_r  <= '0;
+      valid_r <= 1'b0;
+    end else if (valid_i) begin
+      data_r  <= mem_r[addr_i];
+      valid_r <= 1'b1;
+    end else begin
+      valid_r <= 1'b0;
+    end
+  end
+
+  assign data_o  = data_r;
+  assign valid_o = valid_r;
+  assign ready_o = 1'b1;
+
+endmodule</code></pre></div><div class='cr-box fact'><div class='cr-box__label'>No Magic Numbers</div><p>All widths and constants in RTL must reference a named parameter or localparam. <code>data[7:0]</code> is forbidden; <code>data[DATA_W-1:0]</code> is required. This single rule eliminates an entire class of width-mismatch bugs that are otherwise invisible until synthesis.</p></div>` }
   ]},
+
   uvm: { title:'UVM', badge:'Course 03', sections:[
     { title:'UVM Architecture Overview', readTime:'10 min read', eyebrow:'Framework', content:`<p>UVM is a standardized class library built on top of SystemVerilog OOP for verification.</p>` },
   ]},
@@ -1807,6 +2957,15 @@ const COURSE_DATA = {
   ]},
 };
 let currentCourse = null;
+function crCopyCode(btn) {
+  const pre = btn.parentElement.querySelector('pre');
+  if (!pre) return;
+  navigator.clipboard.writeText(pre.innerText).then(() => {
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+  });
+}
 function openCourse(id) {
   currentCourse = id;
   const c = COURSE_DATA[id];
