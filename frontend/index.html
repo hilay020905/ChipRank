@@ -306,11 +306,38 @@ img,svg{display:block;max-width:100%;}
 }
 @media(max-width:700px){
   .nav__links{display:none;}
+  .mobile-menu-btn{display:flex !important;}
   .footer__grid{flex-direction:column;gap:28px;}
   .course-reader{grid-template-columns:1fr;}
   .cr-nav{position:static;height:auto;border-right:none;border-bottom:1px solid var(--border);}
   .cr-content{padding:24px 20px 60px;}
+  /* Mobile editor layout */
+  #editor-page .main-editor-area,
+  #freelab-page .main-editor-area {flex-direction:column !important;}
+  #lab-editors-row{flex-direction:column !important;}
+  #editor-page [style*="width:300px"]{width:100% !important;flex-shrink:1 !important;max-height:240px;}
+  #lab-vpane-resize,#freelab-vpane-resize{display:none !important;}
+  /* Mobile nav hamburger */
+  .mobile-menu-btn{display:flex !important;}
 }
+@media(max-width:520px){
+  .hero h1{font-size:2rem;}
+  .wrap{padding:0 16px;}
+  .hero{padding:48px 0 40px;}
+  .prob-table-head,.prob-row{grid-template-columns:36px 1fr 80px;}
+  .prob-table-head>*:nth-child(n+4),.prob-row>*:nth-child(n+4){display:none;}
+  .domain-grid{grid-template-columns:1fr;}
+  .stats-strip__inner{grid-template-columns:repeat(2,1fr);}
+}
+/* Mobile hamburger */
+.mobile-menu-btn{display:none;flex-direction:column;gap:4px;padding:6px;cursor:pointer;background:none;border:none;}
+.mobile-menu-btn span{display:block;width:22px;height:2px;background:#94A3B8;border-radius:1px;transition:all .2s;}
+.mobile-nav-overlay{display:none;position:fixed;inset:0;z-index:190;background:rgba(0,0,0,.8);backdrop-filter:blur(8px);}
+.mobile-nav-overlay.open{display:block;}
+.mobile-nav-panel{position:fixed;top:0;right:0;bottom:0;width:240px;background:#080808;border-left:1px solid var(--border);z-index:195;padding:70px 20px 24px;display:flex;flex-direction:column;gap:6px;transform:translateX(100%);transition:transform .28s cubic-bezier(.16,1,.3,1);}
+.mobile-nav-panel.open{transform:none;}
+.mobile-nav-panel button{font-size:15px;font-weight:600;color:var(--muted);padding:11px 14px;border-radius:10px;text-align:left;transition:all .2s;background:none;border:none;cursor:pointer;}
+.mobile-nav-panel button:hover,.mobile-nav-panel button.active{background:rgba(255,255,255,.05);color:#fff;}
 </style>
 </head>
 <body>
@@ -339,6 +366,9 @@ img,svg{display:block;max-width:100%;}
         Lab
       </button>
     </nav>
+    <button class="mobile-menu-btn" onclick="toggleMobileNav()" id="mobile-menu-btn" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
     <div class="nav__right" id="nav-auth-btns">
       <button class="btn btn-ghost btn-sm" onclick="openAuth('login')">Log in</button>
       <button class="btn btn-primary btn-sm" onclick="openAuth('signup')">Get started</button>
@@ -460,7 +490,7 @@ img,svg{display:block;max-width:100%;}
         <div class="course-badge" style="background:rgba(6,182,212,.12);color:var(--cyan)"><svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor"><circle cx="6" cy="6" r="5"/></svg> Course 01</div>
         <h2>Verilog</h2>
         <p>The foundation of digital hardware design. Structural and behavioral modeling, procedural blocks, and real combinational and sequential circuits from scratch.</p>
-        <div class="course-meta"><span>42 lessons</span><span>85 problems</span><span>~30 hrs</span></div>
+        <div class="course-meta"><span>18 lessons</span><span>85 problems</span><span>~30 hrs</span></div>
         <div class="course-topics"><span class="course-topic">wire & reg</span><span class="course-topic">always blocks</span><span class="course-topic">FSMs</span><span class="course-topic">parameters</span><span class="course-topic">generate</span></div>
         <div class="course-progress-bar"><div class="course-progress-fill" style="width:0%"></div></div>
         <div class="course-footer"><span class="course-level level-beginner">Beginner</span><button class="course-enroll-btn" onclick="event.stopPropagation();openCourse('verilog')">START COURSE →</button></div>
@@ -501,7 +531,7 @@ img,svg{display:block;max-width:100%;}
   <div class="course-reader">
     <aside class="cr-nav">
       <div class="cr-nav__back" onclick="showPage('courses')">← Back to Courses</div>
-      <div class="cr-nav__course-title" id="cr-sidebar-title">Verilog</div>
+      <div class="cr-nav__course-title" id="cr-sidebar-title">Verilog Mastery</div>
       <div id="cr-nav-items"></div>
     </aside>
     <div class="cr-content">
@@ -600,9 +630,10 @@ img,svg{display:block;max-width:100%;}
       <div style="width:1px;height:20px;background:var(--border);flex-shrink:0;"></div>
       <button onclick="labResetCode()" style="font-size:11.5px;font-family:var(--mono);color:var(--muted);padding:4px 9px;border-radius:5px;border:1px solid var(--border);background:transparent;cursor:pointer;transition:color .2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='var(--muted)'">↺ Reset</button>
       <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
-        <div style="display:flex;align-items:center;gap:4px;font-family:var(--mono);font-size:10.5px;color:var(--muted);">
+        <div style="display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:10.5px;color:var(--muted);">
           <div id="lab-be-dot" style="width:6px;height:6px;border-radius:50%;background:#2a3040;flex-shrink:0;transition:background .3s;"></div>
           <span id="lab-be-txt">checking…</span>
+          <button id="lab-wake-btn" onclick="wakeBackend('lab')" style="display:none;font-family:var(--mono);font-size:10px;color:var(--warn);background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);border-radius:5px;padding:2px 8px;cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='var(--warn)'" onmouseout="this.style.borderColor='rgba(245,158,11,.3)'">⚡ Wake</button>
         </div>
         <button id="lab-run-btn" onclick="labRunSim()" style="display:inline-flex;align-items:center;gap:5px;font-weight:700;font-size:12.5px;padding:6px 16px;border-radius:7px;background:linear-gradient(135deg,#6D63F2,#06B6D4);color:#fff;border:none;cursor:pointer;font-family:inherit;transition:opacity .2s;">▶ Simulate</button>
         <button onclick="labSubmitSol()" style="display:inline-flex;align-items:center;gap:5px;font-weight:600;font-size:12.5px;padding:6px 14px;border-radius:7px;background:transparent;color:var(--muted);border:1px solid var(--border);cursor:pointer;font-family:inherit;transition:all .2s;" onmouseover="this.style.borderColor='var(--cyan)';this.style.color='#fff'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">Submit</button>
@@ -652,8 +683,8 @@ img,svg{display:block;max-width:100%;}
           </div>
         </div>
         <!-- Bottom panel floating card -->
+        <div id="lab-hresize" style="height:6px;background:transparent;cursor:row-resize;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin:2px 0;" onmouseover="this.querySelector('.resize-line').style.background='rgba(6,182,212,.6)'" onmouseout="if(!this._drag)this.querySelector('.resize-line').style.background='rgba(255,255,255,.1)'"><div class="resize-line" style="width:48px;height:3px;border-radius:2px;background:rgba(255,255,255,.1);transition:background .2s;pointer-events:none;"></div></div>
         <div id="lab-bottom" style="height:240px;min-height:90px;max-height:55vh;display:flex;flex-direction:column;background:#0c0c0c;border:1px solid var(--border);border-radius:14px;flex-shrink:0;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.5);">
-          <div id="lab-hresize" style="height:4px;background:transparent;cursor:row-resize;flex-shrink:0;" onmouseover="this.style.background='rgba(6,182,212,.45)'" onmouseout="if(!this._drag)this.style.background='transparent'"></div>
           <div style="display:flex;border-bottom:1px solid var(--border);background:#0a0a0a;flex-shrink:0;border-radius:14px 14px 0 0;">
             <div id="lab-tab-console" onclick="labSwitchTab('console',this)" style="padding:8px 16px;font-size:12px;font-weight:600;cursor:pointer;color:#fff;border-bottom:2px solid var(--cyan);transition:all .18s;">Console</div>
             <div id="lab-tab-wave" onclick="labSwitchTab('wave',this)" style="padding:8px 16px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .18s;">Waveform</div>
@@ -703,9 +734,10 @@ img,svg{display:block;max-width:100%;}
         <option value="v">Verilog (.v)</option>
         <option value="sv">SystemVerilog (.sv)</option>
       </select>
-      <div style="display:flex;align-items:center;gap:4px;font-family:var(--mono);font-size:10.5px;color:var(--muted);">
+      <div style="display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:10.5px;color:var(--muted);">
         <div id="freelab-be-dot" style="width:6px;height:6px;border-radius:50%;background:#2a3040;flex-shrink:0;transition:background .3s;"></div>
         <span id="freelab-be-txt">checking…</span>
+        <button id="freelab-wake-btn" onclick="wakeBackend('freelab')" style="display:none;font-family:var(--mono);font-size:10px;color:var(--warn);background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);border-radius:5px;padding:2px 8px;cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='var(--warn)'" onmouseout="this.style.borderColor='rgba(245,158,11,.3)'">⚡ Wake</button>
       </div>
       <button id="freelab-run-btn" onclick="freeLabRunSim()" style="display:inline-flex;align-items:center;gap:5px;font-weight:700;font-size:12.5px;padding:6px 16px;border-radius:7px;background:linear-gradient(135deg,#6D63F2,#06B6D4);color:#fff;border:none;cursor:pointer;font-family:inherit;transition:opacity .2s;">▶ Simulate</button>
     </div>
@@ -733,8 +765,8 @@ img,svg{display:block;max-width:100%;}
       </div>
     </div>
     <!-- Bottom panel — floating card -->
+    <div id="freelab-hresize" style="height:6px;background:transparent;cursor:row-resize;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin:2px 0;" onmouseover="this.querySelector('.resize-line').style.background='rgba(6,182,212,.6)'" onmouseout="if(!this._drag)this.querySelector('.resize-line').style.background='rgba(255,255,255,.1)'"><div class="resize-line" style="width:48px;height:3px;border-radius:2px;background:rgba(255,255,255,.1);transition:background .2s;pointer-events:none;"></div></div>
     <div id="freelab-bottom" style="height:220px;min-height:90px;max-height:55vh;flex-shrink:0;background:#0c0c0c;border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.5);display:flex;flex-direction:column;">
-      <div id="freelab-hresize" style="height:4px;background:transparent;cursor:row-resize;flex-shrink:0;" onmouseover="this.style.background='rgba(6,182,212,.45)'" onmouseout="if(!this._drag)this.style.background='transparent'"></div>
       <div style="display:flex;border-bottom:1px solid var(--border);background:#0a0a0a;flex-shrink:0;border-radius:14px 14px 0 0;">
         <div id="freelab-tab-console" onclick="freeLabSwitchTab('console',this)" style="padding:8px 16px;font-size:12px;font-weight:600;cursor:pointer;color:#fff;border-bottom:2px solid var(--cyan);transition:all .18s;">Console</div>
         <div id="freelab-tab-wave" onclick="freeLabSwitchTab('wave',this)" style="padding:8px 16px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .18s;">Waveform</div>
@@ -1361,22 +1393,49 @@ function labSubmitSol() {
 // ════════════════════════════════════════════════
 // BACKEND CHECK
 // ════════════════════════════════════════════════
-async function checkBackend(ctx) {
-  try {
-    const r = await fetch(LAB_API + '/health', { signal: AbortSignal.timeout(3000) });
-    labBackendAlive = r.ok;
-  } catch { labBackendAlive = false; }
+async function checkBackend(ctx, retry) {
   const dot = document.getElementById(ctx + '-be-dot');
   const txt = document.getElementById(ctx + '-be-txt');
+  const wakeBtn = document.getElementById(ctx + '-wake-btn');
+  if (dot) { dot.style.background = '#F59E0B'; }
+  if (txt) txt.textContent = 'checking…';
+  try {
+    const r = await fetch(LAB_API + '/health', { signal: AbortSignal.timeout(retry ? 12000 : 4000) });
+    labBackendAlive = r.ok;
+  } catch { labBackendAlive = false; }
   if (!dot) return;
   if (labBackendAlive) {
     dot.style.background = '#22C55E';
     txt.textContent = 'backend online (Icarus Verilog)';
+    if (wakeBtn) wakeBtn.style.display = 'none';
   } else {
     dot.style.background = '#EF4444';
-    txt.textContent = 'backend offline — start backend first';
+    txt.textContent = 'backend sleeping — wake it up';
+    if (wakeBtn) wakeBtn.style.display = 'inline-block';
   }
 }
+
+async function wakeBackend(ctx) {
+  const btn = document.getElementById(ctx + '-wake-btn');
+  const txt = document.getElementById(ctx + '-be-txt');
+  const dot = document.getElementById(ctx + '-be-dot');
+  if (btn) { btn.textContent = '⏳ Waking…'; btn.disabled = true; }
+  if (txt) txt.textContent = 'waking backend (~30s)…';
+  if (dot) dot.style.background = '#F59E0B';
+  // Fire a request to wake the Render dyno
+  fetch(LAB_API + '/health').catch(() => {});
+  // Wait then re-check (Render free tier takes ~30s to spin up)
+  await new Promise(r => setTimeout(r, 32000));
+  if (btn) { btn.textContent = '⚡ Wake'; btn.disabled = false; }
+  await checkBackend(ctx, true);
+}
+
+// Auto-ping backend on page load so it's warm
+(function autoWakeOnLoad() {
+  fetch(LAB_API + '/health', { signal: AbortSignal.timeout(3000) })
+    .then(r => { if (r.ok) { labBackendAlive = true; } })
+    .catch(() => {});
+})();
 
 // ════════════════════════════════════════════════
 // SIMULATE ENGINE  (shared for lab + freelab)
@@ -1730,13 +1789,16 @@ function setupVResizer(handleId, bottomId, m1, m2) {
     handle._drag = true;
     document.body.style.cursor = 'row-resize';
     document.body.style.userSelect = 'none';
+    // Visual feedback on resize line inside handle
+    const line = handle.querySelector('.resize-line');
+    if (line) line.style.background = 'rgba(6,182,212,.8)';
     e.preventDefault();
   });
   document.addEventListener('mousemove', e => {
     if (!drag) return;
     const container = bottom.parentElement;
     const maxH = container ? container.offsetHeight - 120 : 600;
-    const delta = sy - e.clientY;
+    const delta = sy - e.clientY;  // dragging up = larger bottom panel
     const h = Math.max(90, Math.min(maxH, sh + delta));
     bottom.style.height = h + 'px';
     m1 && m1.layout(); m2 && m2.layout();
@@ -1745,7 +1807,8 @@ function setupVResizer(handleId, bottomId, m1, m2) {
     if (!drag) return;
     drag = false;
     handle._drag = false;
-    handle.style.background = 'transparent';
+    const line = handle.querySelector('.resize-line');
+    if (line) line.style.background = 'rgba(255,255,255,.1)';
     document.body.style.cursor = '';
     document.body.style.userSelect = '';
   });
@@ -1818,9 +1881,304 @@ function renderLb() {
 // ════════════════════════════════════════════════
 const COURSE_DATA = {
   verilog: { title:'Verilog', badge:'Course 01', sections:[
-    { title:'Introduction to Verilog', readTime:'8 min read', eyebrow:'Getting Started', content:`<p>Verilog is a hardware description language used to model electronic systems. Unlike software, Verilog describes <em>structure and behavior</em> of digital circuits.</p><div class="cr-box"><div class="cr-box__label">Key Concept</div><p>Verilog does not execute sequentially. Hardware described in Verilog runs <code>concurrently</code> — all always blocks and assign statements are active simultaneously, like real hardware gates.</p></div>` },
-    { title:'Data Types: wire & reg', readTime:'10 min read', eyebrow:'Core Concepts', content:`<p>Use <code>wire</code> for values driven by <code>assign</code> statements. Use <code>reg</code> for values assigned inside <code>always</code> blocks.</p>` },
-    { title:'Always Blocks', readTime:'12 min read', eyebrow:'Procedural Logic', content:`<p>Combinational: <code>always @(*)</code>. Sequential: <code>always @(posedge clk)</code>. The always block is the workhorse of Verilog.</p>` },
+    { title:'What is Verilog?', readTime:'10 min', eyebrow:'Ch 1 — Foundations', content:`<p>Verilog is a <strong style="color:#F8FAFC">Hardware Description Language (HDL)</strong>. You write Verilog to describe what a digital circuit does — not to instruct a processor step by step. This is the single most important mental shift: you are describing hardware, not programming a CPU.</p><p>Verilog was born at Gateway Design Automation in 1984, standardised as IEEE 1364-1995, and revised in 2001 and 2005. Verilog-2001 is what most synthesis tools fully support and what job postings mean when they say "Verilog".</p><p>Two uses exist side by side: <strong style="color:#F8FAFC">simulation</strong> (running your description on a computer to check behavior) and <strong style="color:#F8FAFC">synthesis</strong> (translating your description into real gate-level netlists). Code that simulates correctly can still fail synthesis — a crucial concept you will encounter repeatedly.</p><div class="cr-box fact"><div class="cr-box__label">Fun Fact</div><p>Verilog was originally proprietary software. Cadence bought Gateway and released Verilog into the public domain in 1990, enabling IEEE standardisation. VHDL, its main rival, was developed by the US Department of Defense. Verilog (and its descendant SystemVerilog) dominates in industry today.</p></div>` },
+    { title:'Hardware vs Software Mindset', readTime:'12 min', eyebrow:'Ch 1 — Foundations', content:`<p>When a software programmer writes three lines of code, they execute sequentially. In hardware, if you describe three wires and an adder, all three exist <strong style="color:#F8FAFC">simultaneously</strong> — the adder is always computing, not waiting for a turn.</p><p>Verilog forces you to think in parallelism by default. Multiple always blocks run at the same simulated time. Wires carry values continuously. The simulator has a scheduler, not a program counter.</p><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>// Software thinking — WRONG for hardware
+a = b + c;
+d = a * 2;  // These are NOT sequential in hardware!
+
+// In a combinational always block, order matters only
+// because of blocking assignment evaluation — not time.</code></pre></div><div class="cr-box warn"><div class="cr-box__label">Common Mistake — The Sequential Fallacy</div><p>New Verilog learners expect assignments to run one after another like C code. In a non-blocking block, even ordering disappears. Learn this early or debug it for months.</p></div>` },
+    { title:'Simulation vs Synthesis', readTime:'10 min', eyebrow:'Ch 1 — Foundations', content:`<p><strong style="color:#F8FAFC">Simulation</strong> is running your Verilog model on a host computer to verify logic behavior. Tools like Icarus Verilog (iverilog), ModelSim, and VCS do this.</p><p><strong style="color:#F8FAFC">Synthesis</strong> is translating Verilog RTL into a gate netlist. Tools like Yosys, Synopsys Design Compiler, or Xilinx Vivado do this. Synthesis ignores many Verilog constructs that are fine for simulation.</p><div class="cr-box warn"><div class="cr-box__label">What Synthesis Ignores (beginners forget)</div><p><code>#delays</code> — synthesis strips all timing<br><code>initial</code> — no synthesisable meaning<br><code>$display</code> — simulation print only<br><code>$random</code> — not a real hardware signal<br><code>real, integer</code> — partial support; avoid in RTL<br><code>fork-join</code> — simulation construct only</p></div>` },
+    { title:'Number Systems & Logic Values', readTime:'12 min', eyebrow:'Ch 1 — Foundations', content:`<p>Verilog uses a specific literal format: <code>size'base value</code>. The base is b (binary), o (octal), d (decimal), or h (hex).</p><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>4'b1010      // 4-bit binary: value 10
+8'hFF        // 8-bit hex: value 255
+8'd200       // 8-bit decimal: value 200
+16'b1010_0101_1100_0011  // underscore for readability</code></pre></div><p>Verilog uses a <strong style="color:#F8FAFC">four-value logic system</strong>: <code>0</code>, <code>1</code>, <code>X</code> (unknown), <code>Z</code> (high impedance). X propagates — if a register is uninitialised, any logic depending on it also becomes X. This forces you to think about reset conditions.</p><div class="cr-box tip"><div class="cr-box__label">Interview Classic</div><p>Z = the net has no driver (tristate, unconnected port). X = value is unknown — multiple drivers fighting, uninitialised flop, or explicit uncertainty. In synthesis, X from uninitialised flops becomes whatever silicon decides — a reliability hazard.</p></div>` },
+    { title:'Verilog Module Anatomy', readTime:'14 min', eyebrow:'Ch 1 — Foundations', content:`<p>Every Verilog design is built from <strong style="color:#F8FAFC">modules</strong>. A module is the fundamental building block — analogous to a chip or sub-circuit. It has a name, ports, and an internal description.</p><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>module adder_4bit (
+  input  wire [3:0] a,    // 4-bit input
+  input  wire [3:0] b,    // 4-bit input
+  input  wire       cin,  // carry in
+  output wire [3:0] sum,  // 4-bit result
+  output wire       cout  // carry out
+);
+  wire [4:0] full_sum;
+  assign full_sum = a + b + cin;
+  assign sum  = full_sum[3:0];
+  assign cout = full_sum[4];
+endmodule</code></pre></div><div class="cr-box warn"><div class="cr-box__label">Output default type</div><p>In Verilog-2001, an output port without an explicit type defaults to a wire. If you want to drive it from an <code>always</code> block, declare it as: <code>output reg [3:0] sum;</code> — forgetting reg gives cryptic errors.</p></div>` },
+    { title:'Your First Verilog File', readTime:'12 min', eyebrow:'Ch 1 — Foundations', content:`<p>Let us build and simulate a 2-input AND gate with a testbench. This is the "Hello World" of Verilog. Read every line carefully — the testbench patterns here repeat in every project you will write.</p><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>// --- Design file: and_gate.v ---
+module and_gate (
+  input  wire a, b,
+  output wire y
+);
+  assign y = a & b;
+endmodule
+
+// --- Testbench: tb_and_gate.v ---
+module tb_and_gate;
+  reg  a, b;
+  wire y;
+
+  and_gate dut (.a(a), .b(b), .y(y));
+
+  initial begin
+    $dumpfile("wave.vcd");
+    $dumpvars(0, tb_and_gate);
+    a=0; b=0; #10;
+    a=0; b=1; #10;
+    a=1; b=0; #10;
+    a=1; b=1; #10;
+    $finish;
+  end
+
+  initial
+    $monitor($time, " a=%b b=%b y=%b", a, b, y);
+endmodule
+
+// Compile and run:
+// iverilog -o sim and_gate.v tb_and_gate.v
+// vvp sim</code></pre></div>` },
+    { title:'wire vs reg — The Eternal Confusion', readTime:'12 min', eyebrow:'Ch 2 — Data Types', content:`<p>This is the number one confusion for every new Verilog learner. The names are <em>misleading</em>.</p><p><strong style="color:#F8FAFC">wire</strong> — driven by <code>assign</code> statements or module outputs. Cannot hold state.<br><strong style="color:#F8FAFC">reg</strong> — driven by <code>always</code> blocks. CAN hold state, but only does so if the always block is clocked.</p><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>wire w1;   // driven by assign
+reg  r1;   // driven by always
+
+assign w1 = a & b;   // legal
+
+always @(*)
+  r1 = a | b;         // legal — combinational, r1 is NOT a flip-flop
+
+always @(posedge clk)
+  r1 <= d;            // legal — NOW r1 IS a flip-flop</code></pre></div><div class="cr-box tip"><div class="cr-box__label">The Real Rule</div><p>The synthesised result (flip-flop vs combinational) depends on context, not on the keyword <code>reg</code>. In SystemVerilog, <code>logic</code> replaces both and works everywhere — cleaner.</p></div>` },
+    { title:'Vectors, Parameters & Operators', readTime:'12 min', eyebrow:'Ch 2 — Data Types', content:`<p>A vector is a multi-bit wire or reg, declared as <code>[MSB:LSB]</code>. Parameters make modules configurable at elaboration time.</p><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>wire [7:0]  byte_val;
+reg  [31:0] word;
+
+// Bit-select and part-select
+wire msb        = byte_val[7];
+wire [3:0] hi   = byte_val[7:4];
+wire [7:0] byteN = word[8*n +: 8];  // variable indexed part-select
+
+// Parameters
+module generic_counter #(
+  parameter WIDTH = 8,
+  parameter MAX   = 255
+) (
+  input  wire clk, rst,
+  output reg [WIDTH-1:0] count
+);
+  localparam HALF = MAX / 2;  // internal, not overridable
+  always @(posedge clk)
+    if (rst) count <= 0;
+    else if (count == MAX) count <= 0;
+    else count <= count + 1;
+endmodule
+
+// Instantiate
+generic_counter #(.WIDTH(4), .MAX(10)) cnt (...);
+</code></pre></div><div class="cr-box warn"><div class="cr-box__label">Overflow Bug</div><p><code>wire [3:0] sum = a + b;</code> where a,b are 4-bit drops the carry silently. Use <code>assign {carry, sum} = a + b;</code> to capture it.</p></div>` },
+    { title:'Operator Precedence Traps', readTime:'10 min', eyebrow:'Ch 2 — Data Types', content:`<p>Operator precedence in Verilog follows C loosely — but with surprises. Reduction operators, concatenation, and the conditional operator are common trap zones.</p><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>// Bitwise vs Logical (result width differs)
+wire [3:0] bw_and = a & b;   // 4-bit result
+wire       lg_and = a && b;  // 1-bit result
+
+// Reduction operators (collapse vector to 1 bit)
+wire red_xor = ^a;   // parity of all bits of a
+
+// Triple trap — parsed as a + (b > c) !!
+wire bad = a + b > c;
+wire ok  = (a + b) > c;   // always parenthesise
+
+// The classic carry capture
+assign {carry, sum} = a + b;</code></pre></div><div class="cr-box tip"><div class="cr-box__label">Best Practice</div><p>Parenthesise everything non-obvious. Code reviewers will thank you and simulation will agree with synthesis.</p></div>` },
+    { title:'Structural Verilog & Generate', readTime:'13 min', eyebrow:'Ch 3 — Structural Design', content:`<p>Structural design connects modules together. Always use <strong style="color:#F8FAFC">named port connections</strong> — positional connections break silently when port order changes.</p><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>// Named instantiation — always do this
+alu u0 (
+  .a(data_a), .b(data_b),
+  .op(opcode), .result(alu_out),
+  .zero(zero_flag)
+);
+
+// Generate: parameterised instantiation
+module ripple_adder #(parameter N = 4) (
+  input  [N-1:0] a, b,
+  input  cin,
+  output [N-1:0] sum,
+  output cout
+);
+  wire [N:0] carry;
+  assign carry[0] = cin;
+  assign cout     = carry[N];
+
+  genvar i;
+  generate
+    for (i = 0; i < N; i = i + 1) begin : bit_gen
+      full_adder fa_i (
+        .a(a[i]), .b(b[i]), .cin(carry[i]),
+        .sum(sum[i]), .cout(carry[i+1])
+      );
+    end
+  endgenerate
+endmodule</code></pre></div><div class="cr-box warn"><div class="cr-box__label">Hierarchical References in RTL — Never</div><p>Using dot-notation to read signals across module boundaries is non-synthesisable and creates hidden fragile dependencies. Use ports. Always.</p></div>` },
+    { title:'Combinational Logic: always @(*)', readTime:'12 min', eyebrow:'Ch 4 — Behavioural (Comb)', content:`<p>For combinational logic, always use <code>always @(*)</code> — the Verilog-2001 wildcard that automatically infers the complete sensitivity list. Incomplete lists cause simulation-synthesis mismatch.</p><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>// Priority encoder — if-else implies priority
+always @(*) begin
+  if      (req[3]) grant = 3;
+  else if (req[2]) grant = 2;
+  else if (req[1]) grant = 1;
+  else if (req[0]) grant = 0;
+  else             grant = 0;  // default — always required!
+end
+
+// casez for don't-care bits
+always @(*) begin
+  casez (instruction[15:12])
+    4'b1???: op = TYPE_A;
+    4'b01??: op = TYPE_B;
+    default: op = TYPE_D;
+  endcase
+end</code></pre></div><div class="cr-box warn"><div class="cr-box__label">Unintended Latches — The Silent Bug</div><p>If an <code>always @(*)</code> block does not assign to an output in every code path, synthesis infers a latch. Fix: assign a default at the top of the block before your case/if. Never ignore latch warnings from synthesis.</p></div>` },
+    { title:'Sequential Logic: Flip-Flops & Resets', readTime:'14 min', eyebrow:'Ch 5 — Behavioural (Seq)', content:`<p>The <strong style="color:#F8FAFC">Golden Rule</strong>: use <code>=</code> (blocking) in combinational always, use <code>&lt;=</code> (non-blocking) in sequential always. Never mix them in the same block.</p><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>// Async active-low reset (ASIC standard)
+always @(posedge clk or negedge rst_n)
+  if (!rst_n) q <= 1'b0;
+  else        q <= d;
+
+// Correct register swap — non-blocking preserves old values
+always @(posedge clk) begin
+  a <= b;   // reads current b
+  b <= a;   // reads current a → correct swap!
+end
+
+// Pipeline registers — clean with non-blocking
+always @(posedge clk) begin
+  stage2 <= stage1;
+  stage3 <= stage2;
+  stage4 <= stage3;
+end</code></pre></div><div class="cr-box warn"><div class="cr-box__label">Race Condition with Blocking =</div><p>Two always blocks using blocking assignments on shared signals produce simulator-dependent results. Always use <code>&lt;=</code> in sequential blocks — it eliminates the race entirely by scheduling all updates simultaneously at end of time step.</p></div>` },
+    { title:'Finite State Machines (FSMs)', readTime:'14 min', eyebrow:'Ch 6 — FSMs', content:`<p>The <strong style="color:#F8FAFC">Three-Always Style</strong> separates: (1) state register, (2) next-state logic, (3) output logic. This is the clearest, most maintainable pattern.</p><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>localparam RED=2'd0, GREEN=2'd1, YELLOW=2'd2;
+
+reg [1:0] state, next_state;
+reg [5:0] timer;
+
+// Block 1: State register
+always @(posedge clk or posedge rst)
+  if (rst) state <= RED;
+  else     state <= next_state;
+
+// Block 2: Next-state logic
+always @(*) begin
+  next_state = state;
+  case (state)
+    RED:    if (timer == 19) next_state = GREEN;
+    GREEN:  if (timer == 39) next_state = YELLOW;
+    YELLOW: if (timer == 4)  next_state = RED;
+  endcase
+end
+
+// Block 3: Output logic (Moore)
+always @(*)
+  case (state)
+    RED:    light = 2'b00;
+    GREEN:  light = 2'b01;
+    YELLOW: light = 2'b10;
+    default:light = 2'b00;
+  endcase</code></pre></div><div class="cr-box tip"><div class="cr-box__label">Moore vs Mealy</div><p>Moore: outputs depend ONLY on current state — registered, glitch-free. Mealy: outputs depend on state AND inputs — one cycle faster but can glitch. Moore is safer and easier to debug.</p></div>` },
+    { title:'Memories: RAM, ROM & FIFOs', readTime:'14 min', eyebrow:'Ch 7 — Memories', content:`<p>The standard synchronous RAM template that FPGA tools recognise for Block RAM inference:</p><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>module sram #(
+  parameter DEPTH = 256,
+  parameter WIDTH = 8
+) (
+  input  wire clk,
+  input  wire we,
+  input  wire [$clog2(DEPTH)-1:0] addr,
+  input  wire [WIDTH-1:0] wdata,
+  output reg  [WIDTH-1:0] rdata
+);
+  reg [WIDTH-1:0] mem [0:DEPTH-1];
+  always @(posedge clk) begin
+    if (we) mem[addr] <= wdata;
+    rdata <= mem[addr];  // read-first
+  end
+endmodule</code></pre></div><p>For FIFOs, the classic trick is using one <strong style="color:#F8FAFC">extra bit</strong> in the pointer to distinguish full from empty: empty when all bits match; full when wrap bits differ but lower address bits match. This appears in every FIFO interview question.</p><div class="cr-box warn"><div class="cr-box__label">Async FIFO Needs Gray Code</div><p>For FIFOs crossing clock domains, use Gray-coded pointers — Gray code changes only one bit between consecutive values, making it safe to sample across domains without capturing a garbled intermediate value.</p></div>` },
+    { title:'Advanced RTL: Pipelines & Handshakes', readTime:'14 min', eyebrow:'Ch 8 — Advanced RTL', content:`<p>The <strong style="color:#F8FAFC">valid/ready handshake</strong> is the foundation of AXI, AHB, and most modern on-chip protocols. A transaction completes when BOTH valid and ready are high on the same clock edge.</p><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>// Producer
+always @(posedge clk or posedge rst) begin
+  if (rst) begin valid <= 0; data <= 0; end
+  else begin
+    if (valid && ready)            // handshake happened
+      valid <= 0;
+    if (have_data && (!valid || ready)) begin
+      data  <= next_data;
+      valid <= 1;
+    end
+  end
+end
+
+// Consumer
+assign ready = !busy;</code></pre></div><div class="cr-box warn"><div class="cr-box__label">Valid/Ready Golden Rules</div><p>1. valid must NOT deassert unless a handshake occurred.<br>2. A source must not wait for ready before asserting valid.<br>3. A sink must not wait for valid before asserting ready.<br>Breaking rule 1 is the most common AXI protocol violation.</p></div>` },
+    { title:'Clock Domain Crossing (CDC)', readTime:'14 min', eyebrow:'Ch 8 — Advanced RTL', content:`<p>When a signal crosses from one clock domain to another, it is susceptible to <strong style="color:#F8FAFC">metastability</strong> — the flip-flop output can be neither 0 nor 1, potentially causing system failure. Always use a 2-stage synchroniser.</p><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>// WRONG: direct crossing — metastability risk
+always @(posedge clk_b)
+  signal_b <= signal_a;   // DANGEROUS
+
+// CORRECT: 2-stage synchroniser
+module sync_2ff (
+  input  wire clk_dst, rst_n,
+  input  wire d_src,
+  output wire q_dst
+);
+  reg stage1, stage2;
+  always @(posedge clk_dst or negedge rst_n) begin
+    if (!rst_n) begin stage1 <= 0; stage2 <= 0; end
+    else begin
+      stage1 <= d_src;   // may go metastable
+      stage2 <= stage1;  // resolves before sampled
+    end
+  end
+  assign q_dst = stage2;
+endmodule</code></pre></div><div class="cr-box warn"><div class="cr-box__label">Multi-bit CDC</div><p>Never synchronise each bit of a multi-bit bus separately — if the bits toggle at different times, the receiver sees a garbled value. Use Gray code encoding (for counters) or async FIFOs with Gray-coded pointers.</p></div>` },
+    { title:'Testbench Writing', readTime:'14 min', eyebrow:'Ch 9 — Testbenches', content:`<p>A <strong style="color:#F8FAFC">self-checking testbench</strong> automatically compares DUT outputs against expected values and reports PASS or FAIL. Never rely on eyeballing waveforms.</p><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>module tb_adder;
+  reg  [3:0] a, b;
+  wire [4:0] sum;
+  integer errors = 0, tests = 0;
+
+  adder_4bit dut (.a(a), .b(b), .sum(sum));
+
+  task check;
+    input [3:0] ta, tb;
+    input [4:0] expected;
+    begin
+      a = ta; b = tb; #1;
+      tests = tests + 1;
+      if (sum !== expected) begin
+        $display("FAIL: %0d+%0d=%0d exp %0d",ta,tb,sum,expected);
+        errors = errors + 1;
+      end
+    end
+  endtask
+
+  initial begin
+    // Exhaustive: all 256 combinations
+    begin : exhaustive
+      integer i, j;
+      for (i=0; i<16; i=i+1)
+        for (j=0; j<16; j=j+1)
+          check(i, j, i+j);
+    end
+    $display("%0d tests, %0d errors", tests, errors);
+    if (errors == 0) $display("ALL PASS");
+    $finish;
+  end
+endmodule</code></pre></div><div class="cr-box tip"><div class="cr-box__label">=== vs == in Testbenches</div><p><code>==</code> is 4-value equality: X==X is X. <code>===</code> is case equality: X===X is 1. Use <code>!==</code> to catch X-valued outputs as failures — critical for detecting uninitialised signals.</p></div>` },
+    { title:'Synthesis, Timing & Top Interview Qs', readTime:'14 min', eyebrow:'Ch 10–12 — Synthesis & Interviews', content:`<p>Understanding <strong style="color:#F8FAFC">timing paths</strong> is essential for high-frequency design. Setup time: data must be stable BEFORE the clock edge. Hold time: data must remain stable AFTER the clock edge.</p><div class="cr-box warn"><div class="cr-box__label">Top Synthesis Surprises</div><p><strong>Division</strong>: <code>assign q = a / b;</code> synthesises to a massive hardware divider. Use <code>a >> N</code> for power-of-2 constants.<br><strong>Combinational gating of clocks</strong>: <code>assign gated_clk = clk & enable;</code> — never do this. Use vendor ICG cells.<br><strong>Multiple drivers</strong>: Two assigns on the same wire produce X in simulation and errors in synthesis.<br><strong>Combinational loop</strong>: <code>assign a = b & a;</code> creates an oscillator.</p></div><p>The <strong style="color:#F8FAFC">Top 5 interview questions</strong> every RTL engineer must know cold:</p><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>Q: Blocking vs non-blocking?
+A: = updates immediately (use in comb). <= schedules update
+   for end of time step (use in sequential).
+
+Q: What causes a latch?
+A: always @(*) block that doesn't assign output in
+   every code path. Fix: add default at top.
+
+Q: == vs === ?
+A: == gives X if operands have X/Z. === is 4-value
+   case equality: X===X is 1.
+
+Q: What is metastability?
+A: FF samples signal violating setup/hold → output
+   indeterminate. Fix: 2-stage synchroniser.
+
+Q: Gray code in async FIFOs?
+A: Only one bit changes per value → safe to sample
+   mid-transition without garbling the pointer.</code></pre></div><div class="cr-box fact"><div class="cr-box__label">From Verilog to SystemVerilog</div><p>After mastering this course, SystemVerilog RTL adds: <code>logic</code> type (replaces wire/reg), <code>always_ff/always_comb/always_latch</code> (tool-verified intent), <code>enum</code> for FSMs, <code>interface</code> for port bundling, and powerful testbench constructs including constrained-random and assertions.</p></div>` },
   ]},
   systemverilog: { title:'SystemVerilog Mastery', badge:'Course 02', sections:[
     { title:'What Is SystemVerilog?', readTime:'10 min', eyebrow:'Part 1 — Foundations', content:`<p>SystemVerilog (IEEE 1800) is a unified hardware description and hardware verification language built on top of Verilog (IEEE 1364). It adds object-oriented constructs, assertions, functional coverage, constrained randomisation, and a richer type system. The same language is used to write synthesisable RTL, simulation testbenches, and formal property specifications.</p><h4>Design Abstraction Levels</h4><p>RTL (Register Transfer Level) describes data movement between registers on each clock edge. Behavioural code describes what a module computes without specifying implementation. Structural code connects sub-module instances with wires. SystemVerilog supports all three in the same file.</p><h4>A Minimal SystemVerilog Module</h4><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>module half_adder (
@@ -3689,6 +4047,33 @@ renderLb();
 buildLbCal();
 buildDomainBars();
 applySession();
+
+function toggleMobileNav() {
+  const ov = document.getElementById('mobile-nav-overlay');
+  const pn = document.getElementById('mobile-nav-panel');
+  if (!ov) return;
+  ov.classList.toggle('open');
+  pn.classList.toggle('open');
+}
+function closeMobileNav() {
+  const ov = document.getElementById('mobile-nav-overlay');
+  const pn = document.getElementById('mobile-nav-panel');
+  if (ov) { ov.classList.remove('open'); pn.classList.remove('open'); }
+}
 </script>
+
+<!-- Mobile nav overlay -->
+<div id="mobile-nav-overlay" class="mobile-nav-overlay" onclick="closeMobileNav()"></div>
+<div id="mobile-nav-panel" class="mobile-nav-panel">
+  <button onclick="showPage('home');closeMobileNav()">Home</button>
+  <button onclick="showPage('problems');closeMobileNav()">Problems</button>
+  <button onclick="showPage('courses');closeMobileNav()">Courses</button>
+  <button onclick="showPage('leaderboard');closeMobileNav()">Leaderboard</button>
+  <button onclick="openFreelab();closeMobileNav()" style="color:#A78BFA !important;">⚡ Lab</button>
+  <div style="border-top:1px solid var(--border);margin:10px 0;padding-top:12px;display:flex;flex-direction:column;gap:6px;">
+    <button onclick="openAuth('login');closeMobileNav()">Log in</button>
+    <button onclick="openAuth('signup');closeMobileNav()" style="background:linear-gradient(135deg,#6D63F2,#06B6D4);color:#fff !important;border-radius:10px;">Get started</button>
+  </div>
+</div>
 </body>
 </html>
