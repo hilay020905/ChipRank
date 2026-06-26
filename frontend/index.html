@@ -1881,304 +1881,1197 @@ function renderLb() {
 // ════════════════════════════════════════════════
 const COURSE_DATA = {
   verilog: { title:'Verilog', badge:'Course 01', sections:[
-    { title:'What is Verilog?', readTime:'10 min', eyebrow:'Ch 1 — Foundations', content:`<p>Verilog is a <strong style="color:#F8FAFC">Hardware Description Language (HDL)</strong>. You write Verilog to describe what a digital circuit does — not to instruct a processor step by step. This is the single most important mental shift: you are describing hardware, not programming a CPU.</p><p>Verilog was born at Gateway Design Automation in 1984, standardised as IEEE 1364-1995, and revised in 2001 and 2005. Verilog-2001 is what most synthesis tools fully support and what job postings mean when they say "Verilog".</p><p>Two uses exist side by side: <strong style="color:#F8FAFC">simulation</strong> (running your description on a computer to check behavior) and <strong style="color:#F8FAFC">synthesis</strong> (translating your description into real gate-level netlists). Code that simulates correctly can still fail synthesis — a crucial concept you will encounter repeatedly.</p><div class="cr-box fact"><div class="cr-box__label">Fun Fact</div><p>Verilog was originally proprietary software. Cadence bought Gateway and released Verilog into the public domain in 1990, enabling IEEE standardisation. VHDL, its main rival, was developed by the US Department of Defense. Verilog (and its descendant SystemVerilog) dominates in industry today.</p></div>` },
-    { title:'Hardware vs Software Mindset', readTime:'12 min', eyebrow:'Ch 1 — Foundations', content:`<p>When a software programmer writes three lines of code, they execute sequentially. In hardware, if you describe three wires and an adder, all three exist <strong style="color:#F8FAFC">simultaneously</strong> — the adder is always computing, not waiting for a turn.</p><p>Verilog forces you to think in parallelism by default. Multiple always blocks run at the same simulated time. Wires carry values continuously. The simulator has a scheduler, not a program counter.</p><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>// Software thinking — WRONG for hardware
-a = b + c;
-d = a * 2;  // These are NOT sequential in hardware!
+    { title:'What is Verilog?', readTime:'10 min', eyebrow:'Ch 1 — Foundations', content:`<p>Verilog is a <strong style="color:#F8FAFC">Hardware Description Language (HDL)</strong>. You write Verilog to describe what a digital circuit does — not to instruct a processor step-by-step. This is the single most important mental shift: <em>you are not writing a program, you are describing hardware that exists in silicon simultaneously.</em></p><p>Verilog was born at Gateway Design Automation in 1984, created by Phil Moorby. Cadence bought Gateway and released Verilog into the public domain in 1990, enabling IEEE standardisation as <strong style="color:#F8FAFC">IEEE 1364-1995</strong>. Revisions followed in 2001 (Verilog-2001) and 2005. When job postings say "Verilog" they almost always mean Verilog-2001.</p><p>Two distinct use cases exist side by side: <strong style="color:#F8FAFC">Simulation</strong> — running your description on a host computer (Icarus Verilog, ModelSim, VCS, Xcelium) to verify behavior before committing to silicon. <strong style="color:#F8FAFC">Synthesis</strong> — translating your RTL into a gate netlist (Yosys, Synopsys DC, Xilinx Vivado, Intel Quartus) that becomes real hardware. Code that simulates correctly can fail synthesis. Knowing which constructs are synthesisable is half the job.</p><h4>The Verilog abstraction ladder</h4><p><strong style="color:#F8FAFC">Switch level</strong> — individual transistors (nmos/pmos primitives). Rarely used in modern design.<br><strong style="color:#F8FAFC">Gate level</strong> — AND, OR, NAND, XOR gates. Used in post-synthesis netlists.<br><strong style="color:#F8FAFC">RTL (Register Transfer Level)</strong> — data moving between registers on clock edges. The design sweet spot.<br><strong style="color:#F8FAFC">Behavioural</strong> — high-level description without register detail. Used in testbenches and early modelling.</p><div class="cr-box fact"><div class="cr-box__label">Historical note</div><p>VHDL was created by the US Department of Defense in 1980 and has always been public. Verilog vs VHDL is a religious debate — VHDL dominates in Europe and aerospace; Verilog/SystemVerilog dominates in semiconductor companies worldwide. SystemVerilog (IEEE 1800-2005) extended Verilog with OOP for testbenches, assertions, and a richer type system. It is the dominant language in industry today.</p></div>` },
 
-// In a combinational always block, order matters only
-// because of blocking assignment evaluation — not time.</code></pre></div><div class="cr-box warn"><div class="cr-box__label">Common Mistake — The Sequential Fallacy</div><p>New Verilog learners expect assignments to run one after another like C code. In a non-blocking block, even ordering disappears. Learn this early or debug it for months.</p></div>` },
-    { title:'Simulation vs Synthesis', readTime:'10 min', eyebrow:'Ch 1 — Foundations', content:`<p><strong style="color:#F8FAFC">Simulation</strong> is running your Verilog model on a host computer to verify logic behavior. Tools like Icarus Verilog (iverilog), ModelSim, and VCS do this.</p><p><strong style="color:#F8FAFC">Synthesis</strong> is translating Verilog RTL into a gate netlist. Tools like Yosys, Synopsys Design Compiler, or Xilinx Vivado do this. Synthesis ignores many Verilog constructs that are fine for simulation.</p><div class="cr-box warn"><div class="cr-box__label">What Synthesis Ignores (beginners forget)</div><p><code>#delays</code> — synthesis strips all timing<br><code>initial</code> — no synthesisable meaning<br><code>$display</code> — simulation print only<br><code>$random</code> — not a real hardware signal<br><code>real, integer</code> — partial support; avoid in RTL<br><code>fork-join</code> — simulation construct only</p></div>` },
-    { title:'Number Systems & Logic Values', readTime:'12 min', eyebrow:'Ch 1 — Foundations', content:`<p>Verilog uses a specific literal format: <code>size'base value</code>. The base is b (binary), o (octal), d (decimal), or h (hex).</p><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>4'b1010      // 4-bit binary: value 10
-8'hFF        // 8-bit hex: value 255
-8'd200       // 8-bit decimal: value 200
-16'b1010_0101_1100_0011  // underscore for readability</code></pre></div><p>Verilog uses a <strong style="color:#F8FAFC">four-value logic system</strong>: <code>0</code>, <code>1</code>, <code>X</code> (unknown), <code>Z</code> (high impedance). X propagates — if a register is uninitialised, any logic depending on it also becomes X. This forces you to think about reset conditions.</p><div class="cr-box tip"><div class="cr-box__label">Interview Classic</div><p>Z = the net has no driver (tristate, unconnected port). X = value is unknown — multiple drivers fighting, uninitialised flop, or explicit uncertainty. In synthesis, X from uninitialised flops becomes whatever silicon decides — a reliability hazard.</p></div>` },
-    { title:'Verilog Module Anatomy', readTime:'14 min', eyebrow:'Ch 1 — Foundations', content:`<p>Every Verilog design is built from <strong style="color:#F8FAFC">modules</strong>. A module is the fundamental building block — analogous to a chip or sub-circuit. It has a name, ports, and an internal description.</p><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>module adder_4bit (
-  input  wire [3:0] a,    // 4-bit input
-  input  wire [3:0] b,    // 4-bit input
-  input  wire       cin,  // carry in
-  output wire [3:0] sum,  // 4-bit result
-  output wire       cout  // carry out
+    { title:'Hardware vs Software Mindset', readTime:'14 min', eyebrow:'Ch 1 — Foundations', content:`<p>The single biggest reason new Verilog learners write buggy code is that they bring a software mindset to hardware description. Let's dismantle that mindset completely.</p><h4>Software: sequential execution</h4><p>In C or Python, instructions execute one after another on a CPU. When you write three lines, they happen at time T, T+1, T+2. Variables live at memory addresses and are assigned values that persist until overwritten.</p><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>// C code — sequential, imperative
+int a = b + c;   // step 1
+int d = a * 2;   // step 2 — uses result of step 1
+int e = d - 1;   // step 3 — uses result of step 2</code></pre></div><h4>Hardware: concurrent existence</h4><p>In hardware, wires, gates, and flip-flops <em>exist simultaneously and permanently</em>. An adder does not wait to be told to add — it is always adding its inputs. When you describe an adder and a multiplier in Verilog, both exist and compute in parallel at all times.</p><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>// Verilog — these three assigns ALL EXIST SIMULTANEOUSLY
+// They are not steps — they are permanent connections
+assign full_sum = a + b;         // adder always active
+assign product  = full_sum * 2;  // multiplier always active
+assign result   = product - 1;   // subtractor always active
+// The simulator re-evaluates all of these whenever any input changes.
+// The synthesis tool builds real gates wired exactly like this.</code></pre></div><h4>The four mental models you need</h4><p><strong style="color:#F8FAFC">1. Wire = permanent connection.</strong> A wire carries whatever drives it continuously. If the driver changes, the wire changes immediately.<br><strong style="color:#F8FAFC">2. assign = combinational logic.</strong> The right-hand side is evaluated whenever any of its inputs change. There is no concept of "when does this run?" — it always runs.<br><strong style="color:#F8FAFC">3. always @(*) = combinational logic block.</strong> Identical to assign conceptually, but using procedural syntax. Re-evaluates whenever any input changes.<br><strong style="color:#F8FAFC">4. always @(posedge clk) = sequential logic.</strong> Describes flip-flops. Re-evaluates only on rising clock edges.</p><div class="cr-box warn"><div class="cr-box__label">The Sequential Fallacy — the #1 beginner bug</div><p>Beginners write combinational code expecting it to execute top-to-bottom:<br><code>always @(*) begin</code><br><code>&nbsp;&nbsp;temp = a + b;</code><br><code>&nbsp;&nbsp;result = temp * c; // expects NEW temp</code><br><code>end</code><br>With blocking (=) in combinational this actually works — blocking assignments update immediately within the block. But the moment you switch to non-blocking (<=), both RHS evaluate simultaneously using OLD values. This is correct for flip-flops but catastrophic for combinational logic. The rule is rigid: use = in combinational always, use <= in sequential always.</p></div>` },
+
+    { title:'Simulation vs Synthesis — Know Your Domain', readTime:'12 min', eyebrow:'Ch 1 — Foundations', content:`<p>Every line of Verilog exists in one of two contexts: simulation or synthesis. Confusing them is a guaranteed path to bugs that only appear in silicon.</p><h4>Simulation-only constructs (testbench)</h4><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>#10;                // timing delay — synthesis strips ALL of these
+#(CLK_PERIOD/2);
+initial begin       // no synthesisable meaning (except RAM init in some tools)
+  clk = 0; rst_n = 0; #100 rst_n = 1;
+end
+$display("val=%b", sig);  // system task — gone in synthesis
+$monitor(...);
+$dumpfile("sim.vcd"); $dumpvars(0, tb);
+$finish; $stop;
+real voltage = 3.3;  // floating point — simulation only
+fork ... join;       // concurrent simulation processes — not synthesisable</code></pre></div><h4>Synthesisable RTL constructs</h4><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>assign y = a & b;              // continuous assignment — combinational logic
+always @(*)                    // combinational always
+  case (sel) ... endcase
+always @(posedge clk or negedge rst_n)  // sequential always — flip-flops
+  if (!rst_n) q <= 0; else q <= d;
+module sub_mod (.a(x), .b(y)); // module instantiation — structural hierarchy
+parameter WIDTH = 8;           // parameters — compile-time constants
+genvar i; generate ... endgenerate  // generate blocks</code></pre></div><div class="cr-box tip"><div class="cr-box__label">Simulation-synthesis mismatch — the most dangerous bug class</div><p>Your simulation passes. You send to synthesis. The netlist behaves differently in hardware. Common causes: (1) incomplete sensitivity list — synthesis ignores it, simulator obeys it, (2) blocking = in sequential blocks creates race conditions in simulation not present in hardware, (3) casex with X in expression, (4) initial blocks simulated but not synthesised. The best defence: write clean RTL and run synthesis-aware linting (Spyglass, Questa Lint) on every design.</p></div>` },
+
+    { title:'Number Systems in Verilog', readTime:'12 min', eyebrow:'Ch 1 — Foundations', content:`<p>Verilog has a precise syntax for numeric literals that encodes both value and bit width. Understanding this fully prevents a class of subtle overflow and truncation bugs.</p><h4>The literal format: size'base value</h4><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>// Format: <size>'<base><value>
+// size = number of bits | base = b/o/d/h | underscores ignored
+4'b1010        // 4-bit binary  = decimal 10
+8'hFF          // 8-bit hex     = decimal 255
+8'd200         // 8-bit decimal = 200
+12'o777        // 12-bit octal  = decimal 511
+32'hDEAD_BEEF  // 32-bit hex, underscores for readability
+16'b1010_0101_1100_0011  // binary with grouping
+// Unsized — default 32-bit
+200            // 32-bit decimal
+'hFF           // 32-bit: 32'h000000FF
+1'b0  1'b1  1'bx  1'bz   // common single-bit constants</code></pre></div><h4>Sizing and truncation rules</h4><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>wire [3:0] a = 4'b1111;  // 15
+wire [3:0] b = 4'b0001;  // 1
+// Result of arithmetic = width of LARGEST operand (NOT destination)
+wire [3:0] sum  = a + b;  // 15+1=16 but 4-bit result → OVERFLOW: sum=0 ✗
+wire [4:0] sumx = a + b;  // 5-bit result = 5'b10000 = 16 ✓
+// Correct: widen operands first
+wire [4:0] sumc = {1'b0,a} + {1'b0,b};  // zero-extend then add ✓
+// Carry capture via concatenation
+wire cout; wire [3:0] s;
+assign {cout, s} = a + b;  // 5th bit goes to cout</code></pre></div><h4>Signed vs unsigned</h4><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>wire [7:0]        uval = 8'hFF;  // unsigned: 255
+wire signed [7:0] sval = 8'shFF; // signed: -1 (two's complement)
+// $signed() and $unsigned() for one-off casts
+wire neg = ($signed(uval) < 0);  // TRUE: 8'hFF treated as -1
+// Sign extension: narrow→wider signed auto-extends the sign bit
+wire signed [3:0] s4 = -4'd1;   // 4'b1111
+wire signed [7:0] s8 = s4;      // 8'b11111111 = -1 (auto sign-extended)</code></pre></div><div class="cr-box warn"><div class="cr-box__label">X and Z in literals</div><p><code>4'bX101</code> — bit 3 is unknown, others defined. <code>4'bZ???</code> — all Z. X propagates: <code>1 & X = X</code>, but <code>0 & X = 0</code> (zero kills). In real silicon X doesn't exist — the circuit will be deterministically 0 or 1, but the designer doesn't know which. X in simulation is a warning sign of uninitialised state.</p></div>` },
+
+    { title:'Logic Values: 0, 1, X, Z', readTime:'10 min', eyebrow:'Ch 1 — Foundations', content:`<p>Unlike binary logic with two states, Verilog simulation uses <strong style="color:#F8FAFC">four logic values</strong>. Understanding all four — and when each appears — is fundamental to reading waveforms and debugging.</p><h4>The four values</h4><p><strong style="color:#F8FAFC">0</strong> — Logical zero. Strong drive to ground.<br><strong style="color:#F8FAFC">1</strong> — Logical one. Strong drive to supply.<br><strong style="color:#F8FAFC">X</strong> — Unknown. Could be 0 or 1. Appears when: flip-flop not reset, two drivers fight, or X propagates from another X signal.<br><strong style="color:#F8FAFC">Z</strong> — High impedance. Wire is not driven. Appears when: port unconnected, tristate buffer disabled.</p><h4>X propagation rules</h4><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>wire x = 1'bx, one = 1'b1, zero = 1'b0;
+assign y1 = x & one;   // X & 1 = X   (uncertain)
+assign y2 = x & zero;  // X & 0 = 0   (0 dominates AND)
+assign y3 = x | one;   // X | 1 = 1   (1 dominates OR)
+assign y4 = x | zero;  // X | 0 = X   (uncertain)
+assign y5 = x ^ x;     // X ^ X = X   (even self-XOR is X)
+assign y6 = ~x;        // ~X   = X   (inversion of unknown = unknown)
+
+// Uninitialised register → X until reset
+reg q;  // starts as X
+always @(posedge clk or posedge rst)
+  if (rst) q <= 1'b0;  // reset drives to known 0
+  else     q <= d;
+
+// Bus contention → X
+wire bus;
+assign bus = en1 ? data1 : 1'bz;
+assign bus = en2 ? data2 : 1'bz;  // en1=1 & en2=1 with different data → X</code></pre></div><div class="cr-box tip"><div class="cr-box__label">Interview classic: X vs Z</div><p>Z = the net has no driver (unconnected port, disabled tristate). X = value is unknown — multiple fighting drivers, uninitialised flop, or explicit don't-care. In synthesis, X from uninitialised flops becomes whatever silicon decides — a reliability hazard. Always reset your state elements.</p></div>` },
+
+    { title:'Verilog Module Anatomy', readTime:'14 min', eyebrow:'Ch 1 — Foundations', content:`<p>The module is Verilog's fundamental unit of abstraction — analogous to a chip sub-block with defined inputs and outputs. Everything in a design is a module.</p><h4>Complete module anatomy</h4><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>// Module declaration — name should match filename
+module adder_4bit #(
+  parameter USE_CARRY = 1      // configurable at instantiation
+) (
+  // ANSI-style port list (Verilog-2001)
+  input  wire [3:0] a,         // 4-bit input
+  input  wire [3:0] b,
+  input  wire       cin,
+  output wire [3:0] sum,
+  output wire       cout
 );
-  wire [4:0] full_sum;
-  assign full_sum = a + b + cin;
-  assign sum  = full_sum[3:0];
-  assign cout = full_sum[4];
-endmodule</code></pre></div><div class="cr-box warn"><div class="cr-box__label">Output default type</div><p>In Verilog-2001, an output port without an explicit type defaults to a wire. If you want to drive it from an <code>always</code> block, declare it as: <code>output reg [3:0] sum;</code> — forgetting reg gives cryptic errors.</p></div>` },
-    { title:'Your First Verilog File', readTime:'12 min', eyebrow:'Ch 1 — Foundations', content:`<p>Let us build and simulate a 2-input AND gate with a testbench. This is the "Hello World" of Verilog. Read every line carefully — the testbench patterns here repeat in every project you will write.</p><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>// --- Design file: and_gate.v ---
+  wire [4:0] full_sum;         // internal signals not visible outside
+
+  assign full_sum = {1'b0,a} + {1'b0,b} + {{4{1'b0}},cin};
+  assign sum      = full_sum[3:0];
+  assign cout     = USE_CARRY ? full_sum[4] : 1'b0;
+
+endmodule</code></pre></div><h4>Port directions</h4><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>// input  — read inside, driven from outside
+// output — driven inside, read from outside; defaults to wire type
+//          MUST be output reg if driven by always block
+// inout  — bidirectional (tristate buses: I2C SDA, memory buses)
+
+module tristate_example (
+  input  wire       drive_en,
+  input  wire [7:0] data_in,
+  inout  wire [7:0] data_bus,  // bidirectional
+  output wire [7:0] data_out
+);
+  assign data_bus = drive_en ? data_in : 8'bz;
+  assign data_out = data_bus;
+endmodule</code></pre></div><h4>Old-style vs ANSI-style ports</h4><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>// Verilog-1995 — legacy, still seen in old code, avoid in new designs
+module old_adder (a, b, sum);
+  input  [3:0] a, b;
+  output [3:0] sum;
+  // ...
+endmodule
+
+// Verilog-2001 ANSI style — use this
+module new_adder (
+  input  wire [3:0] a, b,
+  output wire [3:0] sum
+);
+  assign sum = a + b;
+endmodule</code></pre></div><div class="cr-box warn"><div class="cr-box__label">output reg — the forgotten keyword</div><p>If an output is driven by an <code>always</code> block, declare it as <code>output reg</code>. If you write just <code>output</code> (defaults to wire) and drive it from always, you get: "cannot drive wire from procedural assignment" or "reg cannot be driven by continuous assignment". Fix: <code>output reg [N:0] signal_name</code>.</p></div>` },
+
+    { title:'Your First Verilog File', readTime:'12 min', eyebrow:'Ch 1 — Foundations', content:`<p>Let us build and simulate a 2-input AND gate with a complete self-checking testbench. This is the canonical "Hello World" of digital design — the testbench patterns here repeat in every project.</p><h4>Design under test</h4><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>// File: and_gate.v
 module and_gate (
   input  wire a, b,
   output wire y
 );
   assign y = a & b;
-endmodule
-
-// --- Testbench: tb_and_gate.v ---
+endmodule</code></pre></div><h4>Self-checking testbench</h4><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>\`timescale 1ns/1ps
 module tb_and_gate;
   reg  a, b;
   wire y;
+  integer pass=0, fail=0;
 
   and_gate dut (.a(a), .b(b), .y(y));
 
+  initial begin $dumpfile("wave.vcd"); $dumpvars(0, tb_and_gate); end
+
+  task check;
+    input ea, eb, ey;
+    begin
+      a=ea; b=eb; #1;
+      if (y===ey) begin $display("PASS: %b & %b = %b",a,b,y); pass=pass+1; end
+      else        begin $display("FAIL: %b & %b = %b (exp %b)",a,b,y,ey); fail=fail+1; end
+    end
+  endtask
+
   initial begin
-    $dumpfile("wave.vcd");
-    $dumpvars(0, tb_and_gate);
-    a=0; b=0; #10;
-    a=0; b=1; #10;
-    a=1; b=0; #10;
-    a=1; b=1; #10;
+    check(0,0,0); check(0,1,0); check(1,0,0); check(1,1,1);
+    $display("Done: %0d pass, %0d fail", pass, fail);
     $finish;
   end
+endmodule</code></pre></div><h4>Compile and run with Icarus Verilog</h4><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>iverilog -o sim and_gate.v tb_and_gate.v   # compile
+vvp sim                                     # simulate
+# Expected:
+# PASS: 0 & 0 = 0
+# PASS: 0 & 1 = 0
+# PASS: 1 & 0 = 0
+# PASS: 1 & 1 = 1
+# Done: 4 pass, 0 fail
+gtkwave wave.vcd   # view waveforms</code></pre></div><div class="cr-box tip"><div class="cr-box__label">Try it in the ChipRank Lab</div><p>Open the Lab (top nav), paste the AND gate into the DUT panel and the testbench into the Testbench panel, then click ▶ Simulate. You should see all four PASS lines. This exact workflow is used for all problems in the problem set.</p></div>` },
 
-  initial
-    $monitor($time, " a=%b b=%b y=%b", a, b, y);
-endmodule
+    { title:'wire vs reg — The Eternal Confusion', readTime:'14 min', eyebrow:'Ch 2 — Data Types', content:`<p>Ask any Verilog beginner what their most confusing concept is and nine times out of ten: "wire vs reg". The names are historically misleading and the rules seem arbitrary until you understand the underlying model.</p><h4>The actual rule</h4><p><strong style="color:#F8FAFC">wire</strong> — driven by <code>assign</code> statements or module output ports. Cannot be assigned inside <code>always</code>. No memory — carries whatever drives it.</p><p><strong style="color:#F8FAFC">reg</strong> — driven by <code>always</code> or <code>initial</code> blocks. Retains its value between assignments. Despite the name, does NOT necessarily synthesise to a flip-flop.</p><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>wire w; reg r;
+assign w = a & b;           // LEGAL: wire driven by assign
+// assign r = a & b;        // ILLEGAL: cannot assign reg with assign
+always @(*) r = a | b;      // LEGAL: reg in combinational always → NOT a FF
+always @(posedge clk) r <= d; // LEGAL: reg in clocked always → IS a FF</code></pre></div><h4>Does reg mean flip-flop? NO.</h4><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>// Case 1: reg in combinational always → synthesises to WIRE (no flip-flop)
+always @(*) r = a | b;  // r is just combinational. reg is a simulator bookkeeping artifact.
 
-// Compile and run:
-// iverilog -o sim and_gate.v tb_and_gate.v
-// vvp sim</code></pre></div>` },
-    { title:'wire vs reg — The Eternal Confusion', readTime:'12 min', eyebrow:'Ch 2 — Data Types', content:`<p>This is the number one confusion for every new Verilog learner. The names are <em>misleading</em>.</p><p><strong style="color:#F8FAFC">wire</strong> — driven by <code>assign</code> statements or module outputs. Cannot hold state.<br><strong style="color:#F8FAFC">reg</strong> — driven by <code>always</code> blocks. CAN hold state, but only does so if the always block is clocked.</p><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>wire w1;   // driven by assign
-reg  r1;   // driven by always
+// Case 2: reg in clocked always → synthesises to FLIP-FLOP
+always @(posedge clk) r <= d;  // posedge clk makes it sequential → flip-flop
 
-assign w1 = a & b;   // legal
+// Case 3: reg with incomplete assignment → LATCH (almost always unintentional)
+always @(*) if (en) r = d;  // en=0: r holds old value → latch inferred</code></pre></div><h4>output wire vs output reg</h4><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>// Output driven by assign — output wire
+module comb_out (input a, b, output wire y);
+  assign y = a ^ b;   // correct
 
-always @(*)
-  r1 = a | b;         // legal — combinational, r1 is NOT a flip-flop
+// Output driven by always — output reg (MUST declare reg)
+module seq_out (input clk, d, output reg q);
+  always @(posedge clk) q <= d;  // correct
 
-always @(posedge clk)
-  r1 <= d;            // legal — NOW r1 IS a flip-flop</code></pre></div><div class="cr-box tip"><div class="cr-box__label">The Real Rule</div><p>The synthesised result (flip-flop vs combinational) depends on context, not on the keyword <code>reg</code>. In SystemVerilog, <code>logic</code> replaces both and works everywhere — cleaner.</p></div>` },
-    { title:'Vectors, Parameters & Operators', readTime:'12 min', eyebrow:'Ch 2 — Data Types', content:`<p>A vector is a multi-bit wire or reg, declared as <code>[MSB:LSB]</code>. Parameters make modules configurable at elaboration time.</p><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>wire [7:0]  byte_val;
-reg  [31:0] word;
+// COMMON MISTAKE: output wire driven by always → compile error
+module broken (input clk, d, output wire q); // q is wire!
+  always @(posedge clk) q <= d; // ERROR</code></pre></div><div class="cr-box tip"><div class="cr-box__label">SystemVerilog's fix: logic</div><p>SystemVerilog introduces <code>logic</code> which unifies wire and reg — it can be driven by assign, always, or module outputs. This eliminates the confusion entirely: just use <code>logic</code> everywhere in SystemVerilog. For Verilog-2001: wire for assign-driven, reg for always-driven.</p></div>` },
 
-// Bit-select and part-select
-wire msb        = byte_val[7];
-wire [3:0] hi   = byte_val[7:4];
-wire [7:0] byteN = word[8*n +: 8];  // variable indexed part-select
+    { title:'Vectors, Bit-Slicing & Concatenation', readTime:'12 min', eyebrow:'Ch 2 — Data Types', content:`<p>Working with multi-bit values is at the heart of RTL design. Verilog provides rich syntax for declaring vectors, extracting bits, and assembling values from parts.</p><h4>Vector declarations & part-select</h4><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>wire [7:0]  byte_val;         // 8-bit, bit 7 is MSB
+reg  [31:0] word;             // 32-bit register
+wire [0:7]  big_endian;       // unusual: bit 0 is MSB — avoid
 
-// Parameters
-module generic_counter #(
-  parameter WIDTH = 8,
-  parameter MAX   = 255
+// Single bit-select
+wire bit7 = byte_val[7];      // MSB
+wire bit0 = byte_val[0];      // LSB
+
+// Part-select (both bounds must be constants)
+wire [3:0] hi = byte_val[7:4]; // bits 7,6,5,4
+wire [3:0] lo = byte_val[3:0]; // bits 3,2,1,0
+
+// Indexed part-select (Verilog-2001) — variable start, constant width
+wire [31:0] w = 32'hDEAD_BEEF;
+integer n = 1;
+wire [7:0] byte_up   = w[8*n   +: 8];  // w[15:8] — ascending
+wire [7:0] byte_down = w[8*n+7 -: 8];  // w[15:8] — descending</code></pre></div><h4>Concatenation and replication</h4><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>wire [3:0] a = 4'b1010, b = 4'b0101;
+
+// Concatenation — join multiple signals
+wire [7:0] ab  = {a, b};        // 8'b10100101 (a is MSB side)
+wire [8:0] abc = {1'b1, a, b};  // prepend 1-bit
+
+// Replication {N{expr}} — repeat N times
+wire [7:0] zeros = {8{1'b0}};   // 8'b00000000
+wire [7:0] ones  = {8{1'b1}};   // 8'b11111111
+wire [7:0] alt   = {4{2'b10}};  // 8'b10101010
+
+// Sign-extension via replication
+wire signed [3:0] s4 = -4'd3;
+wire signed [7:0] s8 = {{4{s4[3]}}, s4};  // sign-extend: MSB repeated 4x
+
+// Left-side concatenation: capture carry
+wire cout; wire [3:0] sum;
+assign {cout, sum} = {1'b0,a} + {1'b0,b};</code></pre></div><div class="cr-box tip"><div class="cr-box__label">The +: operator is essential for variable slicing</div><p>In Verilog-2001, <code>word[n*8+7 : n*8]</code> is illegal because BOTH bounds must be constants. The indexed part-select <code>word[n*8 +: 8]</code> solves this — start can be variable, width must be constant. Every parameterised bus extractor, byte-lane selector, and register bank uses this pattern.</p></div>` },
+
+    { title:'Parameters, Localparams & Integer Types', readTime:'12 min', eyebrow:'Ch 2 — Data Types', content:`<p>Parameters are Verilog's compile-time constants — the difference between a one-off 8-bit counter and a reusable N-bit counter.</p><h4>Parameters and localparams</h4><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>module counter #(
+  parameter WIDTH = 8,   // overridable by caller
+  parameter MAX   = 255,
+  parameter RESET = 0
 ) (
-  input  wire clk, rst,
-  output reg [WIDTH-1:0] count
+  input  wire             clk, rst,
+  output reg  [WIDTH-1:0] count
 );
-  localparam HALF = MAX / 2;  // internal, not overridable
-  always @(posedge clk)
-    if (rst) count <= 0;
-    else if (count == MAX) count <= 0;
-    else count <= count + 1;
+  localparam HALF = MAX / 2;  // internal derived constant — NOT overridable
+
+  always @(posedge clk or posedge rst)
+    if (rst)              count <= RESET[WIDTH-1:0];
+    else if (count==MAX)  count <= 0;
+    else                  count <= count + 1;
 endmodule
 
-// Instantiate
-generic_counter #(.WIDTH(4), .MAX(10)) cnt (...);
-</code></pre></div><div class="cr-box warn"><div class="cr-box__label">Overflow Bug</div><p><code>wire [3:0] sum = a + b;</code> where a,b are 4-bit drops the carry silently. Use <code>assign {carry, sum} = a + b;</code> to capture it.</p></div>` },
-    { title:'Operator Precedence Traps', readTime:'10 min', eyebrow:'Ch 2 — Data Types', content:`<p>Operator precedence in Verilog follows C loosely — but with surprises. Reduction operators, concatenation, and the conditional operator are common trap zones.</p><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>// Bitwise vs Logical (result width differs)
-wire [3:0] bw_and = a & b;   // 4-bit result
-wire       lg_and = a && b;  // 1-bit result
+// Instantiate with overrides (always use named style)
+counter #(.WIDTH(4), .MAX(9), .RESET(0)) bcd (.clk(clk),.rst(rst),.count(bcd_out));
+counter  default_cnt (.clk(clk), .rst(rst), .count(byte_count)); // uses defaults</code></pre></div><h4>integer, real, time — simulation types only</h4><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>// integer: 32-bit signed — good for testbench loop counters
+integer i, j, errors;
+initial begin
+  errors = 0;
+  for (i=0; i<256; i=i+1) begin
+    data_in = i[7:0]; #10;
+    if (data_out !== expected[i]) errors = errors + 1;
+  end
+  $display("Errors: %0d", errors);
+end
 
-// Reduction operators (collapse vector to 1 bit)
-wire red_xor = ^a;   // parity of all bits of a
+// real: double-precision float — simulation only
+real period_ns = 8.33333;
+always #(period_ns/2) clk = ~clk;
 
-// Triple trap — parsed as a + (b > c) !!
-wire bad = a + b > c;
-wire ok  = (a + b) > c;   // always parenthesise
+// time: 64-bit unsigned — holds $time values
+time t_start;
+initial begin t_start = $time; run_test(); $display("Duration: %0t ns",$time-t_start); end</code></pre></div><div class="cr-box warn"><div class="cr-box__label">Never use integer in synthesisable RTL</div><p><code>integer</code> in synthesis is 32-bit signed with tool-dependent behaviour. It causes width mismatches, sign/unsigned confusion, and portability nightmares. For synthesisable counters always use explicit-width reg: <code>reg [7:0] count</code> not <code>integer count</code>. Reserve <code>integer</code> for testbench only.</p></div>` },
 
-// The classic carry capture
-assign {carry, sum} = a + b;</code></pre></div><div class="cr-box tip"><div class="cr-box__label">Best Practice</div><p>Parenthesise everything non-obvious. Code reviewers will thank you and simulation will agree with synthesis.</p></div>` },
-    { title:'Structural Verilog & Generate', readTime:'13 min', eyebrow:'Ch 3 — Structural Design', content:`<p>Structural design connects modules together. Always use <strong style="color:#F8FAFC">named port connections</strong> — positional connections break silently when port order changes.</p><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>// Named instantiation — always do this
-alu u0 (
-  .a(data_a), .b(data_b),
-  .op(opcode), .result(alu_out),
-  .zero(zero_flag)
-);
+    { title:'Arithmetic, Operators & Precedence', readTime:'14 min', eyebrow:'Ch 2 — Data Types', content:`<p>Verilog arithmetic follows strict rules about bit widths and signedness. Understanding these prevents a family of very subtle and hard-to-find bugs.</p><h4>Width rules — the classic overflow trap</h4><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>wire [3:0] a=4'hF, b=4'h1;  // 15 and 1
+wire [3:0] sum_bad = a + b;  // 15+1=16 → 4-bit OVERFLOWS to 0 ✗
+wire [4:0] sum_ok  = a + b;  // 5-bit result = 5'b10000 = 16 ✓
+// Destination width does NOT affect expression width — unlike C
+wire [7:0] big = 4'hF + 4'h1;  // expression is 4-bit → 0 → zero-extends to 8 ✗
+wire [7:0] big_ok = 8'hF + 8'h1;  // 8-bit arithmetic ✓
 
-// Generate: parameterised instantiation
-module ripple_adder #(parameter N = 4) (
-  input  [N-1:0] a, b,
-  input  cin,
-  output [N-1:0] sum,
-  output cout
+// Carry capture
+wire cout; wire [7:0] sum;
+assign {cout, sum} = {1'b0,a} + {1'b0,b};  // correct pattern</code></pre></div><h4>Three families of operators</h4><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>wire [3:0] a=4'b1010, b=4'b1100;
+
+// Bitwise — operate bit-by-bit, result same width as operands
+wire [3:0] bw_and  = a & b;    // 4'b1000
+wire [3:0] bw_or   = a | b;    // 4'b1110
+wire [3:0] bw_xor  = a ^ b;    // 4'b0110
+wire [3:0] bw_not  = ~a;       // 4'b0101
+
+// Logical — treat entire vector as bool, result is 1 bit
+wire lg_and = a && b;  // both non-zero? → 1
+wire lg_or  = a || b;  // either non-zero? → 1
+wire lg_not = !a;      // a non-zero? → 0
+
+// Reduction — collapse all bits to 1 bit
+wire red_and  = &a;   // 1&0&1&0=0 (all bits 1?)
+wire red_or   = |a;   // 1|0|1|0=1 (any bit 1?)
+wire red_xor  = ^a;   // parity: 1^0^1^0=0
+
+// Shift
+wire [7:0] v=8'b10110010;
+wire [7:0] sll = v << 2;   // logical left:  8'b11001000 (zeros fill right)
+wire [7:0] slr = v >> 2;   // logical right: 8'b00101100 (zeros fill left)
+wire signed [7:0] sv = 8'b10110010;
+wire signed [7:0] sar = sv >>> 2;  // arithmetic right: sign extends</code></pre></div><h4>Operator precedence — critical traps</h4><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>// Precedence (high → low): unary → ** → */% → +- → shifts → compare → ==!= → & → ^ → | → && → || → ?:
+
+// TRAP: arithmetic and comparison mixing
+assign bad = a + b > c;    // parsed as a + (b > c) — comparison is 1-bit!
+assign ok  = (a + b) > c; // correct: add first then compare
+
+// TRAP: ~ has lower precedence than &
+wire z = ~a & b;  // (~a) & b — probably what you want
+wire w = ~(a & b); // must parenthesise to negate the AND result
+
+// BEST PRACTICE: parenthesise everything non-obvious
+// Code reviewers will thank you and synthesis will agree with simulation</code></pre></div>` },
+
+    { title:'Structural Verilog & Generate Blocks', readTime:'14 min', eyebrow:'Ch 3 — Structural Design', content:`<p>Structural Verilog connects modules together to form hierarchies — like assembling ICs on a PCB. Generate blocks let you create parameterised hardware programmatically at elaboration time.</p><h4>Module instantiation — always use named ports</h4><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>module half_adder (input wire a, b, output wire sum, carry);
+  assign sum = a ^ b; assign carry = a & b;
+endmodule
+
+// Positional — FRAGILE: order must match port list exactly
+half_adder ha1 (x, y, s1, c1);
+
+// Named — SAFE: always use this
+half_adder ha1 (.a(x), .b(y), .sum(s1), .carry(c1));
+
+// Leave a port unconnected: output ignored, input floats to Z
+half_adder ha2 (.a(x), .b(y), .sum(s2), .carry());  // carry not needed
+
+// Building a full adder from two half adders
+module full_adder (input wire a, b, cin, output wire sum, cout);
+  wire s1, c1, c2;
+  half_adder ha1 (.a(a),  .b(b),   .sum(s1),  .carry(c1));
+  half_adder ha2 (.a(s1), .b(cin), .sum(sum), .carry(c2));
+  assign cout = c1 | c2;
+endmodule</code></pre></div><h4>Generate-for — parameterised instantiation</h4><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>// N-bit ripple carry adder built from N full_adder instances
+module ripple_adder #(parameter N=8) (
+  input  wire [N-1:0] a, b,
+  input  wire         cin,
+  output wire [N-1:0] sum,
+  output wire         cout
 );
   wire [N:0] carry;
   assign carry[0] = cin;
   assign cout     = carry[N];
 
-  genvar i;
+  genvar i;  // generate variable — only valid inside generate block
   generate
-    for (i = 0; i < N; i = i + 1) begin : bit_gen
-      full_adder fa_i (
-        .a(a[i]), .b(b[i]), .cin(carry[i]),
-        .sum(sum[i]), .cout(carry[i+1])
-      );
+    for (i=0; i<N; i=i+1) begin : fa_stage  // named block for hierarchy
+      full_adder fa_i (.a(a[i]),.b(b[i]),.cin(carry[i]),.sum(sum[i]),.cout(carry[i+1]));
     end
   endgenerate
-endmodule</code></pre></div><div class="cr-box warn"><div class="cr-box__label">Hierarchical References in RTL — Never</div><p>Using dot-notation to read signals across module boundaries is non-synthesisable and creates hidden fragile dependencies. Use ports. Always.</p></div>` },
-    { title:'Combinational Logic: always @(*)', readTime:'12 min', eyebrow:'Ch 4 — Behavioural (Comb)', content:`<p>For combinational logic, always use <code>always @(*)</code> — the Verilog-2001 wildcard that automatically infers the complete sensitivity list. Incomplete lists cause simulation-synthesis mismatch.</p><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>// Priority encoder — if-else implies priority
+endmodule</code></pre></div><h4>Generate-if — conditional hardware selection</h4><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>module adder_select #(parameter FAST=1, N=8) (
+  input  wire [N-1:0] a, b, input wire cin,
+  output wire [N-1:0] sum,  output wire cout
+);
+  generate
+    if (FAST) begin : fast_impl
+      carry_lookahead_adder #(N) u (.a(a),.b(b),.cin(cin),.sum(sum),.cout(cout));
+    end else begin : slow_impl
+      ripple_adder #(N) u (.a(a),.b(b),.cin(cin),.sum(sum),.cout(cout));
+    end
+  endgenerate
+endmodule
+
+// Gray code converter using generate-for
+module bin_to_gray #(parameter N=8) (input wire [N-1:0] bin, output wire [N-1:0] gray);
+  assign gray[N-1] = bin[N-1];
+  genvar i;
+  generate
+    for (i=N-2; i>=0; i=i-1) begin : gray_bits
+      assign gray[i] = bin[i+1] ^ bin[i];
+    end
+  endgenerate
+endmodule</code></pre></div><div class="cr-box warn"><div class="cr-box__label">Hierarchical references in RTL — never</div><p>Using dot-notation to read signals across module boundaries inside synthesisable RTL is non-synthesisable and terrible practice. It creates hidden dependencies — if module A reads <code>top.B.internal_signal</code>, changing B's internals silently breaks A with no port-level visibility. Use ports. Export what you need through the hierarchy explicitly. Hierarchical references are acceptable only in testbenches for probing and forcing signals.</p></div>` },
+
+    { title:'Combinational Logic & Latches', readTime:'14 min', eyebrow:'Ch 4 — Behavioural (Comb)', content:`<p>Combinational logic has no memory — output is purely a function of current inputs. In Verilog, describe it with <code>assign</code> or <code>always @(*)</code>. Both synthesise to the same gates.</p><h4>always @(*) and case variants</h4><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>// WRONG: incomplete sensitivity list — simulation-synthesis mismatch
+always @(a or b)  // forgot c!
+  y = a & b & c;  // c changes don't retrigger simulator → mismatch
+
+// CORRECT: @(*) infers all read signals automatically
+always @(*) y = a & b & c;  // simulator and synthesis agree ✓
+
+// case: exact 4-value match — use for decoders and muxes
 always @(*) begin
-  if      (req[3]) grant = 3;
-  else if (req[2]) grant = 2;
-  else if (req[1]) grant = 1;
-  else if (req[0]) grant = 0;
-  else             grant = 0;  // default — always required!
+  case (opcode)
+    4'h0: result = a + b;
+    4'h1: result = a - b;
+    4'h2: result = a & b;
+    default: result = 8'h00;  // ALWAYS include default to prevent latches
+  endcase
 end
 
-// casez for don't-care bits
+// casez: Z in PATTERN = wildcard — safe for priority encoders
 always @(*) begin
-  casez (instruction[15:12])
-    4'b1???: op = TYPE_A;
-    4'b01??: op = TYPE_B;
-    default: op = TYPE_D;
+  casez (irq)
+    4'b1???: priority = 2'd3;  // bit 3 set = highest priority
+    4'b01??: priority = 2'd2;
+    4'b001?: priority = 2'd1;
+    4'b0001: priority = 2'd0;
+    default: priority = 2'd0;
   endcase
-end</code></pre></div><div class="cr-box warn"><div class="cr-box__label">Unintended Latches — The Silent Bug</div><p>If an <code>always @(*)</code> block does not assign to an output in every code path, synthesis infers a latch. Fix: assign a default at the top of the block before your case/if. Never ignore latch warnings from synthesis.</p></div>` },
-    { title:'Sequential Logic: Flip-Flops & Resets', readTime:'14 min', eyebrow:'Ch 5 — Behavioural (Seq)', content:`<p>The <strong style="color:#F8FAFC">Golden Rule</strong>: use <code>=</code> (blocking) in combinational always, use <code>&lt;=</code> (non-blocking) in sequential always. Never mix them in the same block.</p><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>// Async active-low reset (ASIC standard)
+end
+// casex: AVOID — treats X in expression as wildcard too
+// If opcode has X bits, multiple casex branches match → wrong simulation results</code></pre></div><h4>if-else vs case: priority vs parallel</h4><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>// if-else synthesises a PRIORITY MUX — first condition has highest priority
+// Good when that's intentional (interrupt arbiter, priority encoder)
+always @(*) begin
+  if      (req[3]) grant = 4'b1000;
+  else if (req[2]) grant = 4'b0100;
+  else if (req[1]) grant = 4'b0010;
+  else if (req[0]) grant = 4'b0001;
+  else             grant = 4'b0000;  // covers all cases
+end
+
+// case synthesises a PARALLEL MUX — all conditions equal priority
+// More area-efficient for decoders with mutually exclusive inputs
+always @(*) begin
+  case (sel)
+    2'b00: out = a; 2'b01: out = b;
+    2'b10: out = c; default: out = d;
+  endcase
+end</code></pre></div><h4>Unintended latches — patterns and fixes</h4><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>// LATCH: missing else
+always @(*) if (en) y = d;   // en=0: y holds old value → latch
+
+// LATCH: incomplete case
+always @(*) begin
+  case (sel)
+    2'b00: y = a; 2'b01: y = b;
+    // 2'b10, 2'b11 not covered → latch on y
+  endcase
+end
+
+// LATCH: output not assigned in some branch
+always @(*) begin
+  if (temp > threshold) begin heater_off=1; alert=1; end
+  else                  begin heater_off=0; /* alert not assigned → latch */ end
+end
+
+// THE FIX: default assignment at TOP of always block
+always @(*) begin
+  y = 1'b0;        // default covers EVERYTHING below
+  alert = 1'b0;    // all outputs get a default
+  heater_off = 1'b0;
+  case (sel)
+    2'b00: y = a;
+    2'b01: y = b;
+    // 10,11 already covered by default above
+  endcase
+  if (temp > threshold) begin heater_off=1; alert=1; end
+end</code></pre></div><div class="cr-box tip"><div class="cr-box__label">Use blocking = in combinational always</div><p>In combinational always blocks use <code>=</code> (blocking). It evaluates and updates immediately within the block, so <code>temp = a+b; result = temp*c;</code> uses the NEW temp. With <code><=</code> (non-blocking), both RHS evaluate simultaneously using OLD values — result uses the old temp, producing wrong logic. Golden rule: <code>=</code> in <code>always @(*)</code>, <code><=</code> in <code>always @(posedge clk)</code>.</p></div>` },
+
+    { title:'Sequential Logic: Every Flip-Flop Pattern', readTime:'14 min', eyebrow:'Ch 5 — Behavioural (Seq)', content:`<p>Every piece of state in a digital design is a flip-flop. Mastering every flip-flop variation and the non-blocking assignment rules is non-negotiable.</p><h4>D flip-flop — every variation</h4><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>// Minimal DFF — rising edge, no reset
+always @(posedge clk) q <= d;
+
+// Synchronous reset — rst sampled on clock edge
+always @(posedge clk)
+  if (rst) q <= 1'b0; else q <= d;
+
+// Asynchronous active-low reset — ASIC standard
+// rst_n in sensitivity list because it can trigger the block independently
 always @(posedge clk or negedge rst_n)
-  if (!rst_n) q <= 1'b0;
-  else        q <= d;
+  if (!rst_n) q <= 1'b0; else q <= d;
 
-// Correct register swap — non-blocking preserves old values
+// With enable — register only loads when en=1
+always @(posedge clk or negedge rst_n)
+  if (!rst_n)  q <= 1'b0;
+  else if (en) q <= d;
+  // en=0 and no reset: q holds its value (flip-flop remembers)
+
+// 8-bit register with synchronous load
+always @(posedge clk)
+  if      (rst)  data_reg <= 8'h00;
+  else if (load) data_reg <= data_in;
+  // no else needed — reg holds value automatically</code></pre></div><h4>Non-blocking: the two-step model</h4><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>// <= two-step model:
+// Step 1: Evaluate ALL RHS simultaneously (using current values at start of time step)
+// Step 2: Apply ALL LHS updates simultaneously at END of time step
+
+// Correct register swap using <= 
 always @(posedge clk) begin
-  a <= b;   // reads current b
-  b <= a;   // reads current a → correct swap!
+  a <= b;  // RHS reads CURRENT b
+  b <= a;  // RHS reads CURRENT a (not the new a from line above)
+  // After clock: a = old_b, b = old_a ✓ — correct swap
 end
 
-// Pipeline registers — clean with non-blocking
+// WRONG swap using =
 always @(posedge clk) begin
-  stage2 <= stage1;
-  stage3 <= stage2;
+  a = b;   // a is now b immediately
+  b = a;   // b = new a = old b → both become old_b ✗
+end
+
+// Pipeline registers — non-blocking is completely natural
+always @(posedge clk) begin
+  stage2 <= stage1;   // all RHS use pre-update values
+  stage3 <= stage2;   // uses OLD stage2 — pipeline shifts correctly ✓
   stage4 <= stage3;
-end</code></pre></div><div class="cr-box warn"><div class="cr-box__label">Race Condition with Blocking =</div><p>Two always blocks using blocking assignments on shared signals produce simulator-dependent results. Always use <code>&lt;=</code> in sequential blocks — it eliminates the race entirely by scheduling all updates simultaneously at end of time step.</p></div>` },
-    { title:'Finite State Machines (FSMs)', readTime:'14 min', eyebrow:'Ch 6 — FSMs', content:`<p>The <strong style="color:#F8FAFC">Three-Always Style</strong> separates: (1) state register, (2) next-state logic, (3) output logic. This is the clearest, most maintainable pattern.</p><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>localparam RED=2'd0, GREEN=2'd1, YELLOW=2'd2;
+end</code></pre></div><h4>Shift registers and counters</h4><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>// SIPO shift register — shifts left, inserts at LSB
+always @(posedge clk or negedge rst_n)
+  if (!rst_n) shreg <= 0;
+  else        shreg <= {shreg[N-2:0], si};  // shift left
 
-reg [1:0] state, next_state;
-reg [5:0] timer;
-
-// Block 1: State register
+// 4-bit maximal LFSR — taps at bits 3,2; cycles 15 values
+wire feedback = q[3] ^ q[2];
 always @(posedge clk or posedge rst)
-  if (rst) state <= RED;
-  else     state <= next_state;
+  if (rst) q <= 4'b0001;  // non-zero seed (all-zeros = lockup state!)
+  else     q <= {q[2:0], feedback};
 
-// Block 2: Next-state logic
-always @(*) begin
-  next_state = state;
-  case (state)
-    RED:    if (timer == 19) next_state = GREEN;
-    GREEN:  if (timer == 39) next_state = YELLOW;
-    YELLOW: if (timer == 4)  next_state = RED;
-  endcase
-end
+// Up counter with carry-out and load
+module counter #(parameter N=8) (
+  input  wire clk, rst, en, load,
+  input  wire [N-1:0] load_val,
+  output reg  [N-1:0] count,
+  output wire         carry_out
+);
+  assign carry_out = (&count) & en;  // all-1s AND counting = overflow pulse
+  always @(posedge clk)
+    if      (rst)  count <= 0;
+    else if (load) count <= load_val;
+    else if (en)   count <= count + 1;
+endmodule
 
-// Block 3: Output logic (Moore)
-always @(*)
-  case (state)
-    RED:    light = 2'b00;
-    GREEN:  light = 2'b01;
-    YELLOW: light = 2'b10;
-    default:light = 2'b00;
-  endcase</code></pre></div><div class="cr-box tip"><div class="cr-box__label">Moore vs Mealy</div><p>Moore: outputs depend ONLY on current state — registered, glitch-free. Mealy: outputs depend on state AND inputs — one cycle faster but can glitch. Moore is safer and easier to debug.</p></div>` },
-    { title:'Memories: RAM, ROM & FIFOs', readTime:'14 min', eyebrow:'Ch 7 — Memories', content:`<p>The standard synchronous RAM template that FPGA tools recognise for Block RAM inference:</p><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>module sram #(
-  parameter DEPTH = 256,
-  parameter WIDTH = 8
-) (
-  input  wire clk,
-  input  wire we,
+// Clock divider by 2 — 50% duty cycle guaranteed
+always @(posedge clk or posedge rst)
+  if (rst) div2 <= 0; else div2 <= ~div2;</code></pre></div><div class="cr-box warn"><div class="cr-box__label">Race condition with blocking = in sequential</div><p>Two separate always blocks both triggering on the same clock edge using blocking assignments can produce simulator-dependent results — the order blocks execute is undefined by the Verilog spec. The synthesised hardware always does one deterministic thing. This is simulation-synthesis mismatch. Using <code><=</code> in sequential blocks eliminates this entirely: all RHS are evaluated before any LHS are updated.</p></div>` },
+
+    { title:'Finite State Machines — Complete Guide', readTime:'14 min', eyebrow:'Ch 6 — FSMs', content:`<p>Every digital controller is a finite state machine. FSMs are the heart of protocol controllers, arbiters, sequencers, and CPU control units.</p><h4>Moore vs Mealy</h4><p><strong style="color:#F8FAFC">Moore</strong> — outputs depend ONLY on current state. Glitch-free because outputs come from flip-flops. One-cycle latency.<br><strong style="color:#F8FAFC">Mealy</strong> — outputs depend on state AND inputs. One cycle faster but may glitch on noisy inputs.</p><h4>Three-Always Style — the gold standard</h4><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>module detector_101 (input wire clk, rst, x, output wire detect);
+  localparam S0=2'd0, S1=2'd1, S2=2'd2, S3=2'd3;
+  reg [1:0] state, next;
+
+  // Block 1: State register (sequential)
+  always @(posedge clk or posedge rst)
+    if (rst) state <= S0;
+    else     state <= next;
+
+  // Block 2: Next-state logic (combinational)
+  always @(*) begin
+    next = state;  // default: hold state
+    case (state)
+      S0: next = x ? S1 : S0;
+      S1: next = x ? S1 : S2;  // "11" → stay in S1
+      S2: next = x ? S3 : S0;  // "10x" → accept or reset
+      S3: next = x ? S1 : S2;  // overlap detection
+      default: next = S0;
+    endcase
+  end
+
+  // Block 3: Output logic (Moore — based on state only)
+  assign detect = (state == S3);
+endmodule</code></pre></div><h4>Traffic Light Controller — full design</h4><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>module traffic_light (
+  input  wire       clk, rst, emergency,
+  output reg  [1:0] ns_light,  // 00=RED 01=GRN 10=YLW
+  output reg  [1:0] ew_light
+);
+  localparam NS_GO=0, NS_WARN=1, EW_GO=2, EW_WARN=3;
+  localparam [5:0] GREEN_T=6'd39, YELLOW_T=6'd4;
+  reg [1:0] state, next;
+  reg [5:0] cnt;
+
+  always @(posedge clk or posedge rst) begin
+    if (rst)       begin state<=NS_GO; cnt<=0; end
+    else if (emergency) begin state<=NS_GO; cnt<=0; end
+    else begin
+      if (state!=next) cnt<=0; else cnt<=cnt+1;
+      state<=next;
+    end
+  end
+
+  always @(*) begin
+    next=state;
+    case(state)
+      NS_GO:   if(cnt>=GREEN_T)  next=NS_WARN;
+      NS_WARN: if(cnt>=YELLOW_T) next=EW_GO;
+      EW_GO:   if(cnt>=GREEN_T)  next=EW_WARN;
+      EW_WARN: if(cnt>=YELLOW_T) next=NS_GO;
+      default: next=NS_GO;
+    endcase
+  end
+
+  always @(*) begin
+    ns_light=2'b00; ew_light=2'b00;
+    case(state)
+      NS_GO:   begin ns_light=2'b01; ew_light=2'b00; end
+      NS_WARN: begin ns_light=2'b10; ew_light=2'b00; end
+      EW_GO:   begin ns_light=2'b00; ew_light=2'b01; end
+      EW_WARN: begin ns_light=2'b00; ew_light=2'b10; end
+    endcase
+  end
+endmodule</code></pre></div><h4>Vending Machine FSM</h4><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>// Item costs 15 cents. Accepts nickels (5c) and dimes (10c).
+module vending (input wire clk, rst, nickel, dime, output wire dispense);
+  localparam S0=2'd0, S5=2'd1, S10=2'd2, S15=2'd3;
+  reg [1:0] state, next;
+
+  always @(posedge clk or posedge rst)
+    if (rst) state<=S0; else state<=next;
+
+  always @(*) begin
+    next=state;
+    case(state)
+      S0:  if      (nickel) next=S5;
+           else if (dime)   next=S10;
+      S5:  if      (nickel) next=S10;
+           else if (dime)   next=S15;
+      S10: if      (nickel||dime) next=S15;
+      S15: next=S0;  // dispense then return to idle
+      default: next=S0;
+    endcase
+  end
+  assign dispense = (state==S15);
+endmodule</code></pre></div><div class="cr-box warn"><div class="cr-box__label">FSM design checklist</div><p>Before coding: (1) Draw the state transition diagram. (2) List ALL outputs for ALL states. (3) Identify the reset state. (4) Verify every state has a path back (no deadlocks). (5) Add <code>default: next=RESET_STATE;</code> for illegal encoding recovery. (6) Use Moore outputs or register Mealy outputs to avoid glitches.</p></div>` },
+
+    { title:'Memories: RAM, ROM, FIFO', readTime:'14 min', eyebrow:'Ch 7 — Memories', content:`<p>Memory is the backbone of digital systems. The template you use determines what silicon you get — use the wrong pattern and FPGA tools won't infer Block RAM.</p><h4>Register file — 4 × 8-bit, 2 read ports</h4><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>module regfile #(parameter NREGS=32, WIDTH=32) (
+  input  wire                    clk,
+  input  wire                    we,
+  input  wire [$clog2(NREGS)-1:0] waddr,
+  input  wire [WIDTH-1:0]         wdata,
+  input  wire [$clog2(NREGS)-1:0] raddr_a, raddr_b,
+  output wire [WIDTH-1:0]         rdata_a, rdata_b
+);
+  reg [WIDTH-1:0] regs [0:NREGS-1];
+  always @(posedge clk) if (we) regs[waddr] <= wdata;  // sync write
+  assign rdata_a = regs[raddr_a];  // async read (combinational)
+  assign rdata_b = regs[raddr_b];
+endmodule</code></pre></div><h4>Synchronous SRAM — infers FPGA Block RAM</h4><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>module sram #(parameter DEPTH=256, WIDTH=8) (
+  input  wire                    clk, we,
   input  wire [$clog2(DEPTH)-1:0] addr,
-  input  wire [WIDTH-1:0] wdata,
-  output reg  [WIDTH-1:0] rdata
+  input  wire [WIDTH-1:0]         wdata,
+  output reg  [WIDTH-1:0]         rdata
 );
   reg [WIDTH-1:0] mem [0:DEPTH-1];
   always @(posedge clk) begin
-    if (we) mem[addr] <= wdata;
-    rdata <= mem[addr];  // read-first
+    if (we) mem[addr] <= wdata;   // synchronous write
+    rdata <= mem[addr];            // read-first: rdata gets OLD value
   end
-endmodule</code></pre></div><p>For FIFOs, the classic trick is using one <strong style="color:#F8FAFC">extra bit</strong> in the pointer to distinguish full from empty: empty when all bits match; full when wrap bits differ but lower address bits match. This appears in every FIFO interview question.</p><div class="cr-box warn"><div class="cr-box__label">Async FIFO Needs Gray Code</div><p>For FIFOs crossing clock domains, use Gray-coded pointers — Gray code changes only one bit between consecutive values, making it safe to sample across domains without capturing a garbled intermediate value.</p></div>` },
-    { title:'Advanced RTL: Pipelines & Handshakes', readTime:'14 min', eyebrow:'Ch 8 — Advanced RTL', content:`<p>The <strong style="color:#F8FAFC">valid/ready handshake</strong> is the foundation of AXI, AHB, and most modern on-chip protocols. A transaction completes when BOTH valid and ready are high on the same clock edge.</p><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>// Producer
-always @(posedge clk or posedge rst) begin
-  if (rst) begin valid <= 0; data <= 0; end
+  // Write-first: if(we) begin mem[addr]<=wdata; rdata<=wdata; end
+  //              else rdata<=mem[addr];
+endmodule</code></pre></div><h4>Synchronous FIFO with the extra-bit trick</h4><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>module sync_fifo #(parameter DEPTH=8, WIDTH=8) (
+  input  wire             clk, rst,
+  input  wire             wr_en, rd_en,
+  input  wire [WIDTH-1:0] din,
+  output wire [WIDTH-1:0] dout,
+  output wire             full, empty,
+  output wire [$clog2(DEPTH):0] count
+);
+  localparam AW = $clog2(DEPTH);
+  reg [WIDTH-1:0] mem [0:DEPTH-1];
+  // Pointers are AW+1 bits — EXTRA BIT distinguishes full from empty
+  reg [AW:0] wr_ptr, rd_ptr;
+
+  // Empty: ALL bits equal (including wrap bit)
+  assign empty = (wr_ptr == rd_ptr);
+  // Full: wrap bits DIFFER, lower AW bits EQUAL
+  assign full  = (wr_ptr[AW] != rd_ptr[AW]) && (wr_ptr[AW-1:0]==rd_ptr[AW-1:0]);
+  assign count = wr_ptr - rd_ptr;
+  assign dout  = mem[rd_ptr[AW-1:0]];
+
+  always @(posedge clk or posedge rst) begin
+    if (rst) begin wr_ptr<=0; rd_ptr<=0; end
+    else begin
+      if (wr_en && !full)  begin mem[wr_ptr[AW-1:0]]<=din; wr_ptr<=wr_ptr+1; end
+      if (rd_en && !empty) rd_ptr <= rd_ptr + 1;
+    end
+  end
+endmodule</code></pre></div><h4>ROM with $readmemh initialisation</h4><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>module rom #(parameter N=256, W=8) (
+  input  wire [$clog2(N)-1:0] addr,
+  output wire [W-1:0]          data
+);
+  reg [W-1:0] content [0:N-1];
+  initial $readmemh("rom_data.hex", content);  // load from file
+  assign data = content[addr];  // combinational read
+endmodule
+// rom_data.hex format:
+// @00    ← optional address marker
+// FF A0 B3   ← space-separated hex bytes</code></pre></div><div class="cr-box warn"><div class="cr-box__label">Async FIFO needs Gray code</div><p>For FIFOs crossing clock domains, use Gray-coded pointers. Gray code changes only ONE bit between consecutive values — even if the destination domain samples the pointer mid-transition, it reads either old or new, never a garbled intermediate with multiple bits inconsistently from different values.</p></div>` },
+
+    { title:'Advanced RTL: Pipelines, Handshakes & CDC', readTime:'14 min', eyebrow:'Ch 8 — Advanced RTL', content:`<p>Pipeline registers, valid/ready handshake, and clock domain crossing are the three patterns every production chip uses thousands of times.</p><h4>3-stage arithmetic pipeline</h4><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>module pipeline_3stage (
+  input  wire        clk, rst_n, valid_in,
+  input  wire [7:0]  a, b, c,
+  output reg         valid_out,
+  output reg  [7:0]  result
+);
+  reg s1_valid; reg [15:0] s1_mul; reg [7:0] s1_c;
+  reg s2_valid; reg [15:0] s2_add;
+
+  always @(posedge clk or negedge rst_n) begin
+    if (!rst_n) begin s1_valid<=0; s1_mul<=0; s1_c<=0; end
+    else begin s1_valid<=valid_in; s1_mul<=a*b; s1_c<=c; end
+  end
+  always @(posedge clk or negedge rst_n) begin
+    if (!rst_n) begin s2_valid<=0; s2_add<=0; end
+    else begin s2_valid<=s1_valid; s2_add<=s1_mul+s1_c; end
+  end
+  always @(posedge clk or negedge rst_n) begin
+    if (!rst_n) begin valid_out<=0; result<=0; end
+    else begin valid_out<=s2_valid; result<=(s2_add>8'hFF)?8'hFF:s2_add[7:0]; end
+  end
+endmodule</code></pre></div><h4>Valid/Ready handshake — foundation of AXI</h4><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>// Transaction occurs ONLY when valid=1 AND ready=1 on the SAME clock edge
+// Golden rules:
+// 1. Source: assert valid when data available, hold until handshake
+// 2. Sink: assert ready when able to accept
+// 3. Source must NOT wait for ready before asserting valid
+// 4. Sink must NOT wait for valid before asserting ready
+// (Breaking rule 3 or 4 = deadlock. Breaking rule 1 = protocol violation.)
+
+// Producer
+always @(posedge clk or negedge rst_n) begin
+  if (!rst_n) begin valid<=0; data<=0; end
   else begin
-    if (valid && ready)            // handshake happened
-      valid <= 0;
-    if (have_data && (!valid || ready)) begin
-      data  <= next_data;
-      valid <= 1;
+    if (valid && ready) valid<=0;           // handshake: deassert
+    if (!valid || ready) begin              // can load new data
+      data<=next_data; valid<=1;
     end
   end
 end
 
 // Consumer
-assign ready = !busy;</code></pre></div><div class="cr-box warn"><div class="cr-box__label">Valid/Ready Golden Rules</div><p>1. valid must NOT deassert unless a handshake occurred.<br>2. A source must not wait for ready before asserting valid.<br>3. A sink must not wait for valid before asserting ready.<br>Breaking rule 1 is the most common AXI protocol violation.</p></div>` },
-    { title:'Clock Domain Crossing (CDC)', readTime:'14 min', eyebrow:'Ch 8 — Advanced RTL', content:`<p>When a signal crosses from one clock domain to another, it is susceptible to <strong style="color:#F8FAFC">metastability</strong> — the flip-flop output can be neither 0 nor 1, potentially causing system failure. Always use a 2-stage synchroniser.</p><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>// WRONG: direct crossing — metastability risk
-always @(posedge clk_b)
-  signal_b <= signal_a;   // DANGEROUS
+assign ready = !busy;
+always @(posedge clk) begin
+  if (valid && ready) begin captured<=data; busy<=1; end
+  else busy<=0;
+end</code></pre></div><h4>CDC: 2-FF synchroniser and async FIFO</h4><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>// WRONG: direct crossing — metastability risk
+always @(posedge clk_b) sig_b <= sig_a;  // DANGEROUS
 
 // CORRECT: 2-stage synchroniser
-module sync_2ff (
-  input  wire clk_dst, rst_n,
-  input  wire d_src,
-  output wire q_dst
+module sync_2ff #(parameter W=1) (
+  input  wire       dst_clk, dst_rst_n,
+  input  wire [W-1:0] async_in,
+  output wire [W-1:0] sync_out
 );
-  reg stage1, stage2;
-  always @(posedge clk_dst or negedge rst_n) begin
-    if (!rst_n) begin stage1 <= 0; stage2 <= 0; end
-    else begin
-      stage1 <= d_src;   // may go metastable
-      stage2 <= stage1;  // resolves before sampled
-    end
+  // (* ASYNC_REG="TRUE" *) — tells tools these FFs are synchronisers
+  reg [W-1:0] stage1, stage2;
+  always @(posedge dst_clk or negedge dst_rst_n) begin
+    if (!dst_rst_n) begin stage1<={W{1'b0}}; stage2<={W{1'b0}}; end
+    else begin stage1<=async_in; stage2<=stage1; end
   end
-  assign q_dst = stage2;
-endmodule</code></pre></div><div class="cr-box warn"><div class="cr-box__label">Multi-bit CDC</div><p>Never synchronise each bit of a multi-bit bus separately — if the bits toggle at different times, the receiver sees a garbled value. Use Gray code encoding (for counters) or async FIFOs with Gray-coded pointers.</p></div>` },
-    { title:'Testbench Writing', readTime:'14 min', eyebrow:'Ch 9 — Testbenches', content:`<p>A <strong style="color:#F8FAFC">self-checking testbench</strong> automatically compares DUT outputs against expected values and reports PASS or FAIL. Never rely on eyeballing waveforms.</p><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>module tb_adder;
-  reg  [3:0] a, b;
-  wire [4:0] sum;
-  integer errors = 0, tests = 0;
+  assign sync_out = stage2;
+endmodule
 
-  adder_4bit dut (.a(a), .b(b), .sum(sum));
+// Gray code for async FIFO — only 1 bit changes per increment
+// Binary → Gray: gray = bin ^ (bin >> 1)
+// If receiver samples mid-transition → gets old or new, never garbled
+// Async FIFO pointer flow:
+//   wr_bin (write clk) → bin2gray → wr_gray → sync_2ff → rd_clk domain
+//   rd_bin (read clk) → bin2gray → rd_gray → sync_2ff → wr_clk domain</code></pre></div><div class="cr-box warn"><div class="cr-box__label">Never synchronise multi-bit buses directly</div><p>Synchronising each bit of an N-bit bus through separate 2-FF synchronisers is WRONG. Different bits may resolve at different clock edges → corrupt value. Only Gray-coded values (one bit changes at a time) or single-bit control signals are safe to synchronise directly. For multi-bit data: use an async FIFO with Gray-coded pointers.</p></div>` },
+
+    { title:'Testbench Writing — Complete Guide', readTime:'14 min', eyebrow:'Ch 9 — Testbenches', content:`<p>A good testbench is as important as a good design. Professional verification requires self-checking, corner case coverage, and structured organisation.</p><h4>Complete testbench template</h4><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>\`timescale 1ns/1ps
+module tb_adder;
+  parameter CLK_P = 10;
+
+  reg clk=0, rst_n=0;
+  reg [7:0] a, b;
+  wire [8:0] sum;
+  integer pass=0, fail=0;
+
+  always #(CLK_P/2) clk = ~clk;
+
+  adder_8bit dut (.clk(clk),.rst_n(rst_n),.a(a),.b(b),.sum(sum));
+  initial begin $dumpfile("tb.vcd"); $dumpvars(0,tb_adder); end
+
+  task apply_reset;
+    begin rst_n=0; repeat(5) @(posedge clk); #1 rst_n=1; end
+  endtask
 
   task check;
-    input [3:0] ta, tb;
-    input [4:0] expected;
+    input [7:0] ta, tb; input [8:0] exp;
     begin
-      a = ta; b = tb; #1;
-      tests = tests + 1;
-      if (sum !== expected) begin
-        $display("FAIL: %0d+%0d=%0d exp %0d",ta,tb,sum,expected);
-        errors = errors + 1;
-      end
+      a=ta; b=tb; @(posedge clk); #1;
+      if (sum!==exp) begin $display("FAIL: %0d+%0d=%0d exp %0d",ta,tb,sum,exp); fail++; end
+      else pass++;
     end
   endtask
 
   initial begin
-    // Exhaustive: all 256 combinations
-    begin : exhaustive
-      integer i, j;
-      for (i=0; i<16; i=i+1)
-        for (j=0; j<16; j=j+1)
-          check(i, j, i+j);
+    apply_reset;
+    check(8'h00,8'h00,9'h000);  // zero
+    check(8'hFF,8'h01,9'h100);  // overflow
+    check(8'h7F,8'h7F,9'hFE);   // near overflow
+    // Exhaustive
+    begin : exhaust
+      integer i,j;
+      for(i=0;i<256;i=i+1)
+        for(j=0;j<256;j=j+1)
+          check(i,j,i+j);
     end
-    $display("%0d tests, %0d errors", tests, errors);
-    if (errors == 0) $display("ALL PASS");
+    $display("DONE: %0d pass, %0d fail",pass,fail);
     $finish;
   end
-endmodule</code></pre></div><div class="cr-box tip"><div class="cr-box__label">=== vs == in Testbenches</div><p><code>==</code> is 4-value equality: X==X is X. <code>===</code> is case equality: X===X is 1. Use <code>!==</code> to catch X-valued outputs as failures — critical for detecting uninitialised signals.</p></div>` },
-    { title:'Synthesis, Timing & Top Interview Qs', readTime:'14 min', eyebrow:'Ch 10–12 — Synthesis & Interviews', content:`<p>Understanding <strong style="color:#F8FAFC">timing paths</strong> is essential for high-frequency design. Setup time: data must be stable BEFORE the clock edge. Hold time: data must remain stable AFTER the clock edge.</p><div class="cr-box warn"><div class="cr-box__label">Top Synthesis Surprises</div><p><strong>Division</strong>: <code>assign q = a / b;</code> synthesises to a massive hardware divider. Use <code>a >> N</code> for power-of-2 constants.<br><strong>Combinational gating of clocks</strong>: <code>assign gated_clk = clk & enable;</code> — never do this. Use vendor ICG cells.<br><strong>Multiple drivers</strong>: Two assigns on the same wire produce X in simulation and errors in synthesis.<br><strong>Combinational loop</strong>: <code>assign a = b & a;</code> creates an oscillator.</p></div><p>The <strong style="color:#F8FAFC">Top 5 interview questions</strong> every RTL engineer must know cold:</p><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>Q: Blocking vs non-blocking?
-A: = updates immediately (use in comb). <= schedules update
-   for end of time step (use in sequential).
 
-Q: What causes a latch?
-A: always @(*) block that doesn't assign output in
-   every code path. Fix: add default at top.
+  initial begin #1_000_000; $display("TIMEOUT"); $finish; end  // watchdog
+endmodule</code></pre></div><h4>System tasks quick reference</h4><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>$display("val=%b %d %h", sig, sig, sig); // print with newline
+$write  ("msg");                          // print without newline
+$strobe ("val=%b", sig);                  // print at END of time step
+$monitor("val=%b", sig);                  // print whenever sig changes
+$time                                     // current simulation time
+$finish; $stop;                           // end / pause simulation
+$readmemh("file.hex", mem);               // init memory from hex file
+$readmemb("file.bin", mem);               // init memory from binary file
+$fopen("out.txt","w")                     // open file, returns handle
+$fdisplay(handle,"msg");                  // write to file</code></pre></div><h4>=== vs == and randomised testing</h4><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>// == : logical equality — X==X is X (unknown), not 1
+// ===: case equality   — X===X is 1. Deterministic.
+// Use !== to catch X outputs as failures:
+if (dut_out !== expected) $display("FAIL: got X or wrong value");
 
-Q: == vs === ?
-A: == gives X if operands have X/Z. === is 4-value
-   case equality: X===X is 1.
+// Randomised testing — finds bugs directed tests miss
+module tb_random;
+  reg [7:0] a, b; wire [8:0] sum;
+  integer i, seed=42, fail=0;
+  adder_8bit dut(.a(a),.b(b),.sum(sum));
 
-Q: What is metastability?
-A: FF samples signal violating setup/hold → output
-   indeterminate. Fix: 2-stage synchroniser.
+  function [8:0] ref_model; input [7:0] fa,fb;
+    begin ref_model = fa + fb; end
+  endfunction
 
-Q: Gray code in async FIFOs?
-A: Only one bit changes per value → safe to sample
-   mid-transition without garbling the pointer.</code></pre></div><div class="cr-box fact"><div class="cr-box__label">From Verilog to SystemVerilog</div><p>After mastering this course, SystemVerilog RTL adds: <code>logic</code> type (replaces wire/reg), <code>always_ff/always_comb/always_latch</code> (tool-verified intent), <code>enum</code> for FSMs, <code>interface</code> for port bundling, and powerful testbench constructs including constrained-random and assertions.</p></div>` },
+  initial begin
+    for(i=0;i<100000;i=i+1) begin
+      a=$random(seed); b=$random; #1;
+      if(sum!==ref_model(a,b)) begin
+        $display("FAIL: %0d+%0d=%0d exp %0d",a,b,sum,ref_model(a,b));
+        fail++;
+      end
+    end
+    $display("100k random tests: %0d fail",fail);
+    $finish;
+  end
+endmodule</code></pre></div>` },
+
+    { title:'Synthesis, Timing & Common Surprises', readTime:'14 min', eyebrow:'Ch 10 — Synthesis', content:`<p>Understanding what synthesis does — and what it cannot do — separates engineers who write clean RTL from those who discover synthesis errors at tape-out.</p><h4>Timing paths: setup and hold</h4><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>// Timing path: FF output → combinational logic → FF input
+// Time budget: T_logic < T_clock - T_setup - T_skew
+// Example at 500 MHz (2ns period):
+//   T_setup=0.1ns, T_skew=0.05ns → T_logic < 1.85ns
+// If your path is: adder(0.6ns) + mux(0.2ns) + compare(0.4ns) = 1.2ns → PASSES
+// Add one more op (0.8ns) → 2.0ns → SETUP VIOLATION
+
+// FIX: pipeline — insert register to break long path
+always @(posedge clk) begin
+  stage1_sum <= a + b;      // stage 1: just the addition
+  stage1_c   <= c;          // forward c
+end
+always @(posedge clk)
+  result <= (stage1_sum > stage1_c) ? stage1_sum : stage1_c;  // stage 2
+// Now each stage has 2ns budget → easily meets timing</code></pre></div><h4>Common synthesis surprises</h4><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>// SURPRISE 1: Non-constant division = massive hardware divider
+assign q = a / b;    // synthesises to a full divider: huge area & latency
+assign q = a >> 3;   // division by 8 (power-of-2 constant) = FREE (wiring)
+assign r = a % 8;    // modulo power-of-2 = just low bits
+
+// SURPRISE 2: Combinational clock gating — NEVER
+assign gated_clk = clk & enable;  // glitch on enable corrupts clock
+// USE: vendor ICG cell or synthesis-inferred enable on FF
+
+// SURPRISE 3: Multiple assign drivers on same wire
+assign bus = data1;  // driver 1
+assign bus = data2;  // driver 2 → X in simulation, error in synthesis
+
+// SURPRISE 4: Combinational loop
+assign a = b & a;    // a feeds back to itself → oscillator in hardware
+// Synthesis will warn, may still produce netlist. That netlist DOES NOT WORK.
+
+// SURPRISE 5: Latches from incomplete case
+always @(*) case(sel) 2'b00: y=a; 2'b01: y=b; endcase // → latch!
+
+// SURPRISE 6: integer division truncates
+// 7/2 = 3 not 3.5 — correct Verilog behaviour, but can surprise
+
+// SURPRISE 7: Width of conditional result
+wire [7:0] r = sel ? a : b;  // if a,b are 8-bit this is fine
+// But: wire [3:0] r2 = sel ? 8'hFF : 4'hF; — 4'hF zero-extends to 8'hF, truncated to 4'hF</code></pre></div><h4>Synthesis pragmas</h4><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>// Keep a net from being optimised away
+(* synthesis keep *) wire debug_sig;
+
+// Mark CDC synchroniser flip-flops (prevents reordering)
+(* ASYNC_REG = "TRUE" *) reg [1:0] sync_ff;
+
+// full_case pragma — use ONLY if you have proven no other cases occur
+// If wrong: synthesis hardware won't match simulation
+// synthesis full_case
+case(sel)
+  2'b00: y=a; 2'b01: y=b;
+  // 10, 11 provably don't occur
+endcase  // synthesis full_case</code></pre></div><div class="cr-box warn"><div class="cr-box__label">full_case and parallel_case — extreme caution</div><p><code>full_case</code> tells synthesis to ignore unreachable states. If those states ARE reachable (e.g. due to a bug), synthesis produces hardware that doesn't match simulation. Prefer writing complete unambiguous RTL with defaults over using pragmas to paper over incomplete logic.</p></div>` },
+
+    { title:'UART Transmitter — Complete RTL Project', readTime:'14 min', eyebrow:'Ch 11 — Real Projects', content:`<p>UART is the most common serial protocol in embedded and chip design. Implementing it exercises every concept from this course: parameters, FSM, counters, shift register, and clock division.</p><h4>Protocol</h4><p>Frame: 1 start bit (LOW) + 8 data bits (LSB first) + 1 stop bit (HIGH). Line idles HIGH. Both sides must agree on baud rate. No clock signal — timing derived from start bit edge.</p><h4>Complete UART TX</h4><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>module uart_tx #(
+  parameter CLK_FREQ = 50_000_000,
+  parameter BAUD     = 115_200
+) (
+  input  wire       clk, rst_n,
+  input  wire       tx_start,
+  input  wire [7:0] tx_data,
+  output wire       tx_busy,
+  output reg        tx
+);
+  localparam CLKS_PER_BIT = CLK_FREQ / BAUD;
+  localparam CNT_W        = $clog2(CLKS_PER_BIT+1);
+  localparam IDLE=2'd0, START=2'd1, DATA=2'd2, STOP=2'd3;
+
+  reg [1:0]       state;
+  reg [CNT_W-1:0] clk_cnt;
+  reg [2:0]       bit_idx;
+  reg [7:0]       shreg;
+  assign tx_busy = (state != IDLE);
+
+  always @(posedge clk or negedge rst_n) begin
+    if (!rst_n) begin state<=IDLE; tx<=1; clk_cnt<=0; bit_idx<=0; shreg<=0; end
+    else case(state)
+      IDLE: begin
+        tx<=1;
+        if(tx_start) begin shreg<=tx_data; clk_cnt<=0; state<=START; end
+      end
+      START: begin
+        tx<=0;  // start bit = LOW
+        if(clk_cnt==CLKS_PER_BIT-1) begin clk_cnt<=0; bit_idx<=0; state<=DATA; end
+        else clk_cnt<=clk_cnt+1;
+      end
+      DATA: begin
+        tx<=shreg[0];  // LSB first
+        if(clk_cnt==CLKS_PER_BIT-1) begin
+          clk_cnt<=0; shreg<=shreg>>1;
+          if(bit_idx==7) state<=STOP; else bit_idx<=bit_idx+1;
+        end else clk_cnt<=clk_cnt+1;
+      end
+      STOP: begin
+        tx<=1;  // stop bit = HIGH
+        if(clk_cnt==CLKS_PER_BIT-1) begin clk_cnt<=0; state<=IDLE; end
+        else clk_cnt<=clk_cnt+1;
+      end
+      default: state<=IDLE;
+    endcase
+  end
+endmodule</code></pre></div><h4>UART RX</h4><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>module uart_rx #(parameter CLK_FREQ=50_000_000, BAUD=115_200) (
+  input  wire       clk, rst_n, rx,
+  output reg  [7:0] rx_data,
+  output reg        rx_valid
+);
+  localparam CLKS_PER_BIT = CLK_FREQ / BAUD;
+  localparam CNT_W = $clog2(CLKS_PER_BIT+1);
+  localparam IDLE=2'd0, START=2'd1, DATA=2'd2, STOP=2'd3;
+
+  reg [1:0]       state;
+  reg [CNT_W-1:0] cnt;
+  reg [2:0]       bit_idx;
+  reg [7:0]       shreg;
+
+  always @(posedge clk or negedge rst_n) begin
+    if (!rst_n) begin state<=IDLE; rx_valid<=0; rx_data<=0; cnt<=0; bit_idx<=0; end
+    else begin
+      rx_valid<=0;
+      case(state)
+        IDLE: if(!rx) begin cnt<=0; state<=START; end  // falling edge = start bit
+        START: if(cnt==CLKS_PER_BIT/2) begin cnt<=0; bit_idx<=0; state<=DATA; end  // sample in middle
+               else cnt<=cnt+1;
+        DATA: if(cnt==CLKS_PER_BIT-1) begin
+                cnt<=0;
+                shreg<={rx,shreg[7:1]};  // shift in MSB side, LSB out
+                if(bit_idx==7) state<=STOP; else bit_idx<=bit_idx+1;
+              end else cnt<=cnt+1;
+        STOP: if(cnt==CLKS_PER_BIT-1) begin
+                rx_data<=shreg; rx_valid<=1; state<=IDLE;
+              end else cnt<=cnt+1;
+      endcase
+    end
+  end
+endmodule</code></pre></div><div class="cr-box tip"><div class="cr-box__label">Baud rate accuracy</div><p>At 115200 baud with 50 MHz: 50,000,000/115,200 = 434.027 → truncated to 434. Error per bit: 0.006%. UART tolerates up to ~2-3% total timing error across 10 bits — well within tolerance. For very high baud rates, consider fractional baud rate generators (add 0.5 accumulator).</p></div>` },
+
+    { title:'4-bit ALU & Simple CPU Datapath', readTime:'14 min', eyebrow:'Ch 11 — Real Projects', content:`<p>A complete ALU and minimal CPU datapath brings together every concept from this course: parameters, combinational case, sequential always, module hierarchy, and memory.</p><h4>4-bit ALU with flags</h4><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>module alu_4bit (
+  input  wire [3:0] a, b,
+  input  wire [2:0] op,
+  output reg  [3:0] result,
+  output wire       zero, carry, negative, overflow
+);
+  localparam ADD=0,SUB=1,AND=2,OR=3,XOR=4,NOT=5,SHL=6,SHR=7;
+  reg [4:0] full;
+
+  always @(*) begin
+    full=5'b0;
+    case(op)
+      ADD: full={1'b0,a}+{1'b0,b};
+      SUB: full={1'b0,a}-{1'b0,b};
+      AND: full={1'b0,a&b};
+      OR:  full={1'b0,a|b};
+      XOR: full={1'b0,a^b};
+      NOT: full={1'b0,~a};
+      SHL: full={a[3],a[2:0],1'b0};
+      SHR: full={1'b0,a[3],a[3:1]};  // arithmetic right shift
+    endcase
+    result=full[3:0];
+  end
+  assign zero     = (result==4'h0);
+  assign carry    = full[4];
+  assign negative = result[3];
+  // Overflow: signed arithmetic overflow detection
+  assign overflow = (op==ADD) && ((~a[3]&~b[3]&result[3])|(a[3]&b[3]&~result[3]));
+endmodule</code></pre></div><h4>Minimal 8-bit CPU datapath</h4><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>// Instruction: [15:12]=opcode [11:10]=rs [9:8]=rt [7:6]=rd [7:0]=imm
+// Opcodes: 0=ADD 1=SUB 2=AND 3=OR 4=LOADI 5=BEQ(branch if rs==rt)
+module cpu8 (input wire clk, rst, output wire [7:0] pc_out, alu_out);
+  reg [7:0] pc;
+  assign pc_out = pc;
+
+  reg [15:0] imem [0:255];
+  wire [15:0] instr = imem[pc];
+  wire [3:0] opcode = instr[15:12];
+  wire [1:0] rs=instr[11:10], rt=instr[9:8], rd=instr[7:6];
+  wire [7:0] imm=instr[7:0];
+
+  reg [7:0] regs [0:3];
+  wire [7:0] rs_val=regs[rs], rt_val=regs[rt];
+
+  reg [7:0] alu_result;
+  assign alu_out=alu_result;
+  always @(*) case(opcode)
+    4'h0: alu_result=rs_val+rt_val;
+    4'h1: alu_result=rs_val-rt_val;
+    4'h2: alu_result=rs_val&rt_val;
+    4'h3: alu_result=rs_val|rt_val;
+    4'h4: alu_result=imm;
+    default: alu_result=8'h00;
+  endcase
+
+  always @(posedge clk or posedge rst) begin
+    if (rst) begin
+      pc<=0; regs[0]<=0; regs[1]<=0; regs[2]<=0; regs[3]<=0;
+    end else begin
+      if (rd!=0) regs[rd]<=alu_result;
+      pc <= (opcode==4'h5 && rs_val==rt_val) ? imm : pc+1;
+    end
+  end
+
+  initial begin  // simple test program: count r1 from 0 to 9
+    imem[0]=16'h4100; // LOADI r1,0
+    imem[1]=16'h4201; // LOADI r2,1
+    imem[2]=16'h0112; // ADD r1,r1,r2  (r1++)
+    imem[3]=16'h5001; // BEQ r0,r0,1   (loop forever)
+  end
+endmodule</code></pre></div><h4>SPI Master</h4><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>// SPI Mode 0: CPOL=0 CPHA=0 — data captured on rising SCLK, shifted on falling
+module spi_master #(parameter CLK_DIV=4) (
+  input  wire       clk, rst_n, start,
+  input  wire [7:0] mosi_data,
+  output reg  [7:0] miso_data,
+  output reg        cs_n, sclk, mosi,
+  input  wire       miso,
+  output reg        done
+);
+  reg [3:0] cnt;
+  reg [2:0] bit_cnt;
+  reg [7:0] shreg;
+  reg [$clog2(CLK_DIV)-1:0] div_cnt;
+  reg active;
+
+  always @(posedge clk or negedge rst_n) begin
+    if (!rst_n) begin cs_n<=1; sclk<=0; done<=0; active<=0; div_cnt<=0; bit_cnt<=0; end
+    else begin
+      done<=0;
+      if (!active && start) begin
+        cs_n<=0; shreg<=mosi_data; active<=1; bit_cnt<=7; div_cnt<=0; sclk<=0;
+      end else if (active) begin
+        if (div_cnt==CLK_DIV/2-1) begin
+          div_cnt<=0;
+          sclk<=~sclk;
+          if (!sclk) begin  // rising edge: sample MISO
+            shreg<={shreg[6:0],miso};
+          end else begin    // falling edge: shift MOSI
+            mosi<=shreg[7];
+            if (bit_cnt==0) begin active<=0; cs_n<=1; miso_data<=shreg; done<=1; end
+            else bit_cnt<=bit_cnt-1;
+          end
+        end else div_cnt<=div_cnt+1;
+      end
+    end
+  end
+endmodule</code></pre></div>` },
+
+    { title:'Top 20 RTL Interview Questions', readTime:'14 min', eyebrow:'Ch 12 — Interview Prep', content:`<p>These questions appear at Intel, AMD, Qualcomm, Nvidia, Apple Silicon, Arm, and every ASIC/FPGA company. Know every answer from memory. Practice writing the code without notes.</p><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>Q1: Blocking vs non-blocking assignments?
+A:  = (blocking): evaluates and updates immediately in the block.
+    Sequential execution within the block. Use in combinational always.
+    <= (non-blocking): evaluates RHS now, schedules LHS for end of
+    time step. All <=s in one step update simultaneously.
+    Use in clocked sequential always. Never mix in same always block.
+
+Q2: What causes a latch to be inferred?
+A:  Combinational always block does not assign a signal in every code
+    path. Fix: default assignment at top of always block.
+
+Q3: == vs === in testbenches?
+A:  == logical equality: X==X is X (unknown). Can miss X outputs.
+    === case equality: X===X is 1. Use !== to catch X as failure.
+
+Q4: What is metastability?
+A:  FF samples signal violating setup/hold time → output indeterminate
+    voltage for unpredictable duration. Fix: 2-FF synchroniser in CDC.
+
+Q5: Safe single-bit CDC crossing?
+A:  2-stage synchroniser: two back-to-back FFs clocked by destination.
+    First FF may go metastable; has full clock period to resolve.
+
+Q6: Why Gray code for async FIFO pointers?
+A:  Only ONE bit changes between consecutive values. Even if sampled
+    mid-transition: old or new value, never garbled multi-bit error.
+
+Q7: Setup violation vs hold violation?
+A:  Setup: data arrives too late before clock edge.
+    Fix: reduce logic depth, pipeline, use faster cells.
+    Hold: data changes too fast after clock edge.
+    Fix: add buffer delays. CANNOT fix by slowing clock.
+
+Q8: What does $clog2 return?
+A:  Ceiling log base 2. $clog2(8)=3, $clog2(9)=4, $clog2(1)=1.
+    Used for address bus width: $clog2(DEPTH) bits addresses DEPTH.
+
+Q9: One-hot vs binary encoding for FSMs?
+A:  One-hot: N states, N FFs, only one set. Simpler next-state
+    logic, faster on FPGAs. More flip-flops.
+    Binary: log2(N) FFs, complex decode. FPGAs prefer one-hot.
+
+Q10: Sensitivity list rules?
+A:  Combinational: always @(*) — infers all read signals.
+    Sequential: list only clk (and reset if async).
+    Synthesis ignores list. Simulator obeys strictly.
+
+Q11: What is simulation-synthesis mismatch?
+A:  Sim passes, hardware behaves differently. Causes:
+    incomplete sensitivity, blocking = in sequential (race),
+    casex with X in expression, initial blocks.
+
+Q12: Why integer is dangerous in RTL?
+A:  32-bit signed with tool-dependent behaviour. Use explicit reg [N:0].
+
+Q13: What is a tristate bus?
+A:  Multiple drivers, each outputting Z when not driving.
+    Used for I2C, memory buses. FPGAs: internal tristate not supported.
+
+Q14: casez vs casex?
+A:  casez: Z in PATTERN = wildcard. Safe.
+    casex: X or Z in EITHER pattern or expression = wildcard.
+    casex with uninitialised expression → multiple branches match.
+    Industry style guides ban casex. Always use casez.
+
+Q15: How does 2-FF sync prevent metastability?
+A:  First FF may go metastable. It has one full destination clock
+    period to resolve before the second FF samples it.
+    Probability of failure = negligible with one full period.
+
+Q16: What is a generate block?
+A:  Compile-time parameterised hardware. for-loops and if-else that
+    create or select hardware based on parameters. genvar is the
+    loop variable. Always name generate blocks for hierarchy.
+
+Q17: What is $dumpvars?
+A:  Dumps signal values to VCD for waveform viewing.
+    $dumpvars(0,scope) = all signals in scope and sub-scopes.
+
+Q18: Valid/ready handshake rules?
+A:  Transfer when both valid=1 AND ready=1 on same clock edge.
+    Source: assert valid, hold until handshake, don't wait for ready.
+    Sink: assert ready when able, don't wait for valid.
+    Violating these causes deadlock or data loss.
+
+Q19: How do you fix hold vs setup violations?
+A:  Setup: reduce logic, pipeline, faster cells, reduce skew.
+    Hold: insert buffer delays in P&amp;R. Increasing clock period
+    does NOT fix hold violations (hold is clock-period independent).
+
+Q20: What is operand isolation?
+A:  Drive datapath inputs to 0 when unit is idle to prevent
+    unnecessary switching. Reduces dynamic power 30-50%.
+    assign a_iso = en ? a : 8'h00; — prevents adder inputs toggling.</code></pre></div><div class="cr-box fact"><div class="cr-box__label">What senior RTL engineers catch instantly in code review</div><p>1. Non-blocking &lt;= in combinational always<br>2. Missing default in case<br>3. Missing else — latch risk<br>4. Not using @(*) — incomplete sensitivity list<br>5. output without reg on always-driven signal<br>6. Hardcoded widths instead of parameters<br>7. Direct CDC crossing without synchroniser<br>8. assign gated_clk = clk &amp; en — combinational clock gating<br>9. Registers with no reset path — X in simulation<br>10. $random/$time in synthesisable RTL<br>11. Mixing signed/unsigned without explicit cast<br>12. casex instead of casez<br>13. a/b with non-constant b — hardware divider<br>14. Two assign drivers on same wire<br>15. Silent carry drop: sum=a+b without {cout,sum}</p></div>` },
+
+    { title:'From Verilog to SystemVerilog', readTime:'12 min', eyebrow:'Ch 12 — Next Steps', content:`<p>You now know Verilog. SystemVerilog (IEEE 1800) is the direct evolution — it fixes every rough edge and adds powerful verification constructs. Here is a precise mapping.</p><h4>Type system: everything becomes logic</h4><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>// Verilog                  SystemVerilog
+wire w;                   // logic l;       — works as wire OR reg
+reg  r;                   // logic l;       — one type rules them all
+wire [7:0] bus;           // logic [7:0] bus;
+// New types
+bit    flag;              // 2-value (0/1 only — no X/Z). Faster simulation.
+byte   b;                 // 8-bit signed integer
+int    i;                 // 32-bit signed
+longint li;               // 64-bit signed</code></pre></div><h4>always blocks: intent-verified</h4><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>// Verilog                    SystemVerilog
+always @(*)                   always_comb    // tool verifies: no latches,
+  y = a & b;                    y = a & b;  // complete sensitivity list
+
+always @(posedge clk or negedge rst_n)  always_ff @(posedge clk or negedge rst_n)
+  if (!rst_n) q<=0;               if (!rst_n) q<=0;
+  else q<=d;                      else q<=d;  // tool verifies: only @posedge
+
+always_latch   // intentional latch — documents intent explicitly
+  if (en) q = d;</code></pre></div><h4>Enum, struct, interface</h4><div class="cr-code-wrap"><button class="cr-copy-btn" onclick="crCopyCode(this)">Copy</button><pre><code>// Enum — named states for FSMs, visible in waveform viewer
+typedef enum logic [1:0] {IDLE=2'd0, FETCH=2'd1, EXEC=2'd2} state_t;
+state_t state, next;
+
+// Struct — group related signals
+typedef struct packed {
+  logic [31:0] addr;
+  logic [31:0] data;
+  logic        write;
+  logic [3:0]  strb;
+} bus_req_t;
+bus_req_t req;  // use as a port type
+
+// Interface — bundle ports with direction constraints
+interface apb_if (input logic pclk, presetn);
+  logic [31:0] paddr, pwdata, prdata;
+  logic psel, penable, pwrite, pready;
+  modport master (input pclk,presetn,pready,prdata, output paddr,pwdata,psel,penable,pwrite);
+  modport slave  (input pclk,presetn,paddr,pwdata,psel,penable,pwrite, output pready,prdata);
+endinterface
+
+module apb_master (apb_if.master bus);
+  always_ff @(posedge bus.pclk) if (bus.pready) bus.psel<=0;
+endmodule</code></pre></div><div class="cr-box tip"><div class="cr-box__label">Your learning path from here</div><p>1. Solve all ChipRank Verilog problems — simulate in the Lab to confirm understanding.<br>2. Take the SystemVerilog course — the first 6 sections extend exactly what you've learned here.<br>3. Learn UVM — the industry testbench methodology built on SystemVerilog classes.<br>4. Read Cliff Cummings' SNUG papers — the definitive reference on blocking/non-blocking and FSM coding styles. Free online.<br>5. Practice CDC analysis with tools like SpyGlass or VC Formal.<br><strong>The demand for Verilog/SystemVerilog RTL engineers is extremely high. This course is your foundation.</strong></p></div>` },
+
   ]},
   systemverilog: { title:'SystemVerilog Mastery', badge:'Course 02', sections:[
     { title:'What Is SystemVerilog?', readTime:'10 min', eyebrow:'Part 1 — Foundations', content:`<p>SystemVerilog (IEEE 1800) is a unified hardware description and hardware verification language built on top of Verilog (IEEE 1364). It adds object-oriented constructs, assertions, functional coverage, constrained randomisation, and a richer type system. The same language is used to write synthesisable RTL, simulation testbenches, and formal property specifications.</p><h4>Design Abstraction Levels</h4><p>RTL (Register Transfer Level) describes data movement between registers on each clock edge. Behavioural code describes what a module computes without specifying implementation. Structural code connects sub-module instances with wires. SystemVerilog supports all three in the same file.</p><h4>A Minimal SystemVerilog Module</h4><div class='cr-code-wrap'><button class='cr-copy-btn' onclick='crCopyCode(this)'>Copy</button><pre><code>module half_adder (
